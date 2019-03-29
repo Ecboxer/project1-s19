@@ -18,7 +18,8 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask
+from flask import Flask, request, render_template, g, redirect, Response, flash, session, abort
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -116,50 +117,54 @@ def index():
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
 
+  # Login logic
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
 
-  #
-  # example of a database query
-  #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
+    #
+    # example of a database query
+    #
+    cursor = g.conn.execute("SELECT name FROM test")
+    names = []
+    for result in cursor:
+      names.append(result['name'])  # can also be accessed using result[0]
+    cursor.close()
 
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
+    #
+    # Flask uses Jinja templates, which is an extension to HTML where you can
+    # pass data to a template and dynamically generate HTML based on the data
+    # (you can think of it as simple PHP)
+    # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
+    #
+    # You can see an example template in templates/index.html
+    #
+    # context are the variables that are passed to the template.
+    # for example, "data" key in the context variable defined below will be 
+    # accessible as a variable in index.html:
+    #
+    #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
+    #     <div>{{data}}</div>
+    #     
+    #     # creates a <div> tag for each element in data
+    #     # will print: 
+    #     #
+    #     #   <div>grace hopper</div>
+    #     #   <div>alan turing</div>
+    #     #   <div>ada lovelace</div>
+    #     #
+    #     {% for n in data %}
+    #     <div>{{n}}</div>
+    #     {% endfor %}
+    #
+    context = dict(data = names)
 
 
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
+    #
+    # render_template looks in the templates/ folder for files.
+    # for example, the below file reads template/index.html
+    #
+    return render_template("index.html", **context)
 
 #
 # This is an example of a different path.  You can see it at
@@ -184,15 +189,19 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
-
+# Add logic for user login and user registration
+@app.route('/login', methods=['POST'])
+def do_admin_login():
+  if request.form['password'] == 'password' and request.form['username'] == 'admin':
+    session['logged_in'] = True
+  else:
+    flash('Wrong password!')
+  return index()
 
 if __name__ == "__main__":
   import click
-
+  app.secret_key = os.urandom(12)
+  
   @click.command()
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
@@ -214,6 +223,6 @@ if __name__ == "__main__":
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
     app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
-
+    
 
   run()
