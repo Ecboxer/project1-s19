@@ -20,11 +20,12 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask
 from flask import Flask, request, render_template, g, redirect, Response, flash, session, abort
+from flask_login import LoginManager
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-
+login = LoginManager(app)
 
 # XXX: The Database URI should be in the format of: 
 #
@@ -184,18 +185,50 @@ def another():
 def add():
   name = request.form['name']
   print(name)
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-  g.conn.execute(text(cmd), name1 = name, name2 = name);
+  cmd = 'INSERT INTO test(name) VALUES (:name1)';
+  g.conn.execute(text(cmd), name1 = name);
   return redirect('/')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+  if request.method == 'POST':
+    name = request.form['name']
+    username = request.form['username']
+    password = request.form['password']
+    email = request.form['email']
+    
+    # FIXME remove print when deployed
+    print('name: {}, username: {}, password: {}, email: {}'.format(name, username, password, email))
+
+    return redirect('/')
+  else:
+    return redirect('/register')
 
 # Add logic for user login and user registration
 @app.route('/login', methods=['POST'])
-def do_admin_login():
-  if request.form['password'] == 'password' and request.form['username'] == 'admin':
+def login():
+  username = request.form['username']
+  password = request.form['password']
+  
+  # FIXME remove print when deployed
+  print('username: {}, password: {}'.format(username, password))
+  
+  cmd = 'SELECT * FROM users WHERE username = (:username) AND user_password = (:password)';
+  cursor = g.conn.execute(text(cmd), username = username, password = password);
+  users = []
+  for result in cursor:
+    users.append(result['user_id'])
+  cursor.close()
+
+  if len(users) != 0:
     session['logged_in'] = True
   else:
     flash('Wrong password!')
+  return index()
+
+@app.route('/logout')
+def logout():
+  session['logged_in'] = False
   return index()
 
 if __name__ == "__main__":
