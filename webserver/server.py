@@ -25,6 +25,7 @@ from datetime import datetime
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
+
 # XXX: The Database URI should be in the format of: 
 #
 #     postgresql://USER:PASSWORD@<IP_OF_POSTGRE_SQL_SERVER>/<DB_NAME>
@@ -121,13 +122,15 @@ def index():
     return render_template('login.html')
   else:
 
-    #
-    # example of a database query
-    #
-    cursor = g.conn.execute("SELECT name FROM test")
-    names = []
+    # Query for restaurants
+    cursor = g.conn.execute("""SELECT location_id, location_name, location_address, location_city
+        FROM restaurant""")
+    restaurants = []
     for result in cursor:
-      names.append(result['name'])  # can also be accessed using result[0]
+      restaurants.append(dict(location_id=result['location_id'],
+                              location_name=result['location_name'],
+                              location_address=result['location_address'],
+                              location_city=result['location_city']))
     cursor.close()
 
     #
@@ -136,28 +139,7 @@ def index():
     # (you can think of it as simple PHP)
     # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
     #
-    # You can see an example template in templates/index.html
-    #
-    # context are the variables that are passed to the template.
-    # for example, "data" key in the context variable defined below will be 
-    # accessible as a variable in index.html:
-    #
-    #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-    #     <div>{{data}}</div>
-    #     
-    #     # creates a <div> tag for each element in data
-    #     # will print: 
-    #     #
-    #     #   <div>grace hopper</div>
-    #     #   <div>alan turing</div>
-    #     #   <div>ada lovelace</div>
-    #     #
-    #     {% for n in data %}
-    #     <div>{{n}}</div>
-    #     {% endfor %}
-    #
-    context = dict(data = names)
-
+    context = dict(data = restaurants)
 
     #
     # render_template looks in the templates/ folder for files.
@@ -165,14 +147,30 @@ def index():
     #
     return render_template("index.html", **context)
 
-#
-# This is an example of a different path.  You can see it at
-# 
-#     localhost:8111/another
-#
-# notice that the function name is another() rather than index()
-# the functions for each app.route needs to have different names
-#
+
+# Display menus of selected restaurant
+@app.route('/<string:location_id>/menu', methods=['GET', 'POST'])
+def menu(location_id):
+  # Login logic
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+
+    # Query for menus
+    cmd = "SELECT menu_name FROM menu WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+    
+    menus = []
+    for result in cursor:
+      menus.append(dict(menu_name=result['menu_name']))
+    cursor.close()
+
+    context = dict(data = menus)
+
+    return render_template("menu.html", **context)
+
+
+# Example alternate route
 @app.route('/another')
 def another():
   return render_template("anotherfile.html")
@@ -252,7 +250,7 @@ def login():
   password = request.form['password']
   
   # FIXME remove print when deployed
-  print('username: {}, password: {}'.format(username, password))
+  print('username: {}, password: ********'.format(username))
   
   cmd = 'SELECT * FROM users WHERE username = (:username) AND user_password = (:password)';
   cursor = g.conn.execute(text(cmd), username = username, password = password);
@@ -263,6 +261,7 @@ def login():
 
   if len(users) != 0:
     session['logged_in'] = True
+    session['user_id'] = users[0]
   else:
     flash('Wrong password')
   return index()
@@ -270,6 +269,7 @@ def login():
 @app.route('/logout')
 def logout():
   session['logged_in'] = False
+  session.pop('user_id', None)
   return index()
 
 if __name__ == "__main__":

@@ -2,30 +2,27 @@
 <html>
 
     <body>
-	<h1>Restaurants</h1>
+	<h1>Menus</h1>
 
 	<table>
 	    <thead>
 		<tr>
 		    <th></th>
-		    <th>Name</th>
-		    <th>Address</th>
-		    <th>City</th>
+		    <th>Menu Name</th>
 		</tr>
 	    </thead>
 	    <tbody>
 		{% for n in data %}
 		<tr>
-		    <td><a href="/{{n.location_id}}/menu">View Menu</a></td>
-		    <td class='location_name'>{{n.location_name}}</td>
-		    <td class='location_address'>{{n.location_address}}</td>
-		    <td class='location_city'>{{n.location_city}}</td>
+		    <td><a href="#">View Items</a></td>
+		    <td class='menu_name'>{{n.menu_name}}</td>
 		</tr>
 		{% endfor %}
 	    </tbody>
 	</table>
 
 	<footer>
+	    <p><a href="/">Back to restaurants</a></p>
 	    <p><a href="/logout">Logout</a></p>
 	</footer>
 
