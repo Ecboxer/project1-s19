@@ -20,12 +20,10 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask
 from flask import Flask, request, render_template, g, redirect, Response, flash, session, abort
-from flask_login import LoginManager
+from datetime import datetime
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
-
-login = LoginManager(app)
 
 # XXX: The Database URI should be in the format of: 
 #
@@ -189,20 +187,63 @@ def add():
   g.conn.execute(text(cmd), name1 = name);
   return redirect('/')
 
+# Add new user and customer to database
 @app.route('/register', methods=['GET', 'POST'])
 def register():
   if request.method == 'POST':
     name = request.form['name']
     username = request.form['username']
     password = request.form['password']
+    confirm_password = request.form['confirm-password']
     email = request.form['email']
+    dob = request.form['dob']
+    
+    # Confirm passwords
+    if password != confirm_password:
+      flash('Passwords do not match')
+      return render_template('register.html')
+
+    # Check password length
+    if len(password) < 8:
+      flash('Password must contain at least 8 characters')
+      return render_template('register.html')
+    
+    # Check availability of username
+    cmd = 'SELECT * FROM users WHERE username = (:username)';
+    cursor = g.conn.execute(text(cmd), username = username);
+    users = []
+    for result in cursor:
+      users.append(result['user_id'])
+    cursor.close()
+
+    if len(users) != 0:
+      flash('Username already in use')
+      return render_template('register.html')
     
     # FIXME remove print when deployed
-    print('name: {}, username: {}, password: {}, email: {}'.format(name, username, password, email))
+    print("""name: {}, username: {}, password: ********,
+        email: {}, dob:{}""".format(name, username, email, dob))
 
-    return redirect('/')
+    # Insert new user
+    dt = datetime.now()
+    cmd = """INSERT INTO users(user_name, username, user_password, join_date)
+        VALUES (:name, :username, :password, :join_date)""";
+    g.conn.execute(text(cmd), name=name, username=username, password=password, join_date=dt);
+
+    # Get user_id
+    cmd = 'SELECT * FROM users WHERE username = (:username)';
+    cursor = g.conn.execute(text(cmd), username = username);
+    for result in cursor:
+      user_id = result['user_id']
+    cursor.close()
+    # Insert new customer
+    cmd = """INSERT INTO customer VALUES (:user_id, :dob, :email)""";
+    g.conn.execute(text(cmd), user_id=user_id, dob=dob, email=email);
+
+    flash('Registration successful')
+    return render_template("login.html")
   else:
-    return redirect('/register')
+    return render_template("register.html")
 
 # Add logic for user login and user registration
 @app.route('/login', methods=['POST'])
@@ -223,7 +264,7 @@ def login():
   if len(users) != 0:
     session['logged_in'] = True
   else:
-    flash('Wrong password!')
+    flash('Wrong password')
   return index()
 
 @app.route('/logout')
