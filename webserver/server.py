@@ -194,7 +194,15 @@ def items(menu_id):
                         menu_item_price=round(result['menu_item_price'], 2)))
     cursor.close()
 
-    context = dict(data = items)
+    # Query for location_id
+    cmd = "SELECT location_id FROM menu WHERE menu_id = :menu_id";
+    cursor = g.conn.execute(text(cmd), menu_id = menu_id);
+    
+    for result in cursor:
+      location_id = result['location_id']
+    cursor.close()
+
+    context = dict(data = items, location_id = location_id)
 
     return render_template("items.html", **context)
 
