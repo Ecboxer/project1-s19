@@ -1,6 +1,11 @@
 <link rel="stylesheet" href="/static/style.css" type="text/css">
 <html>
 
+    <header>
+	<p><a href="/{{location_id}}/menu">Back to menus</a></p>
+	<p><a href="/logout">Logout</a></p>
+    </header>
+
     <body>
 	<h1>{{location_name}}</h1>
 	<h2>{{menu_name}}</h2>
@@ -27,11 +32,6 @@
 		{% endfor %}
 	    </tbody>
 	</table>
-
-	<footer>
-	    <p><a href="/{{location_id}}/menu">Back to menus</a></p>
-	    <p><a href="/logout">Logout</a></p>
-	</footer>
 
     </body>
 </html>
