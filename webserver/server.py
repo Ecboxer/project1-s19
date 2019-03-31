@@ -21,6 +21,8 @@ from sqlalchemy.pool import NullPool
 from flask import Flask
 from flask import Flask, request, render_template, g, redirect, Response, flash, session, abort
 from datetime import datetime
+import time
+import random
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -187,7 +189,6 @@ def menu(location_id):
 # Display items of selected restaurant and menu
 @app.route('/<string:menu_id>/items', methods=['GET', 'POST'])
 def items(menu_id):
-  print(menu_id)
   # Login logic
   if not session.get('logged_in'):
     return render_template('login.html')
@@ -225,11 +226,65 @@ def items(menu_id):
       location_name = result['location_name']
     cursor.close()
 
-
     context = dict(data = items, location_id = location_id,
                    location_name = location_name, menu_name = menu_name)
 
-    return render_template("items.html", **context)
+    if request.method == 'GET':
+      return render_template("items.html", **context)
+    
+    if request.method == 'POST':
+      # TODO fails when pickup is checked, menu_item_name not defined
+      # Generate order_id
+      machine_id = '12345678'
+      secs = str(int(round(time.time())))
+      counter = str(random.randint(0, 9999999))
+      order_id = secs + machine_id + counter
+
+      # Generate order timestamp
+      dt = datetime.now()
+
+      # Retrieve pickup information
+      pickup_check = request.form.getlist('pickup')
+      if len(pickup_check) > 0:
+        pickup = 'true'
+      else:
+        pickup = 'false'
+
+      # Initialize confirmation message
+      conf_msg = ''
+
+      n_ordered = 0
+      for item_id, quantity in request.form.items():
+        if quantity != '0' and quantity != 'pickup':
+          n_ordered += 1
+          # Retrieve menu_item_name and menu_name
+          cmd = "SELECT menu_item_name, menu_section_name FROM item WHERE item_id = :item_id";
+          cursor = g.conn.execute(text(cmd), item_id = item_id);
+          for result in cursor:
+            menu_item_name = result['menu_item_name']
+            menu_name = result['menu_section_name']
+          cursor.close()
+
+          # Insert into ordered
+          cmd = """INSERT INTO ordered(order_id, order_item_id, order_placed, quantity, pickup, menu_item_name, menu_name, location_id)
+              VALUES (:order_id, :item_id, :dt, :quantity, :pickup, :menu_item_name, :menu_name, :location_id)""";
+          g.conn.execute(text(cmd), order_id=order_id, item_id=item_id, dt=dt, quantity=quantity,
+                         pickup=pickup, menu_item_name=menu_item_name, menu_name=menu_name,
+                         location_id=location_id);
+          
+          # For first item insert into placed
+          if n_ordered == 1:
+            cmd = """INSERT INTO placed(customer_id, order_id, order_item_id, date_placed)
+                VALUES (:customer_id, :order_id, :item_id, :dt)""";
+            g.conn.execute(text(cmd), customer_id=session['user_id'], order_id=order_id,
+                           item_id=item_id, dt=dt);
+          
+          # Append confirmation message
+          conf_msg += menu_item_name + ' x ' + quantity + '\n'
+
+      # Show order confirmation
+      flash(conf_msg)
+      return render_template("items.html", **context)
 
 
 # Example alternate route
@@ -264,7 +319,6 @@ def register():
     return render_template("register.html", **context)
   
   if request.method == 'POST':
-    context = dict(data = restaurants)
     name = request.form['name']
     username = request.form['username']
     password = request.form['password']

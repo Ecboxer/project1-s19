@@ -1,4 +1,6 @@
 <link rel="stylesheet" href="/static/style.css" type="text/css">
+{% extends "layout.html" %}
+{% block body %}
 <html>
 
     <header>
@@ -10,10 +12,15 @@
 	<h1>{{location_name}}</h1>
 	<h2>{{menu_name}}</h2>
 
+	<form method="POST" id="order-form">
+	    <input type="submit" value="Order" class="btn-order btn-primary btn-large btn-block">
+	    <br>
+	    <input type="checkbox" name="pickup" value="pickup" class="btn-check">Check for pickup
+	</form>
 	<table>
 	    <thead>
 		<tr>
-		    <th>Quantity?</th>
+		    <th>Quantity</th>
 		    <th>Section</th>
 		    <th>Item</th>
 		    <th>Description</th>
@@ -23,7 +30,9 @@
 	    <tbody>
 		{% for n in data %}
 		<tr>
-		    <td></td>
+		    <td>
+			<input type="number" id="qty" name="{{n.item_id}}" value="0" form="order-form" min="0" max="10"/>
+		    </td>
 		    <td class="menu_section">{{n.menu_section_name}}</td>
 		    <td class="menu_item_name">{{n.menu_item_name}}</td>
 		    <td class="menu_item_description">{{n.menu_item_description}}</td>
@@ -35,3 +44,4 @@
 
     </body>
 </html>
+{% endblock %}
