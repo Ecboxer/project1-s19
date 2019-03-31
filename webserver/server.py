@@ -102,6 +102,7 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
+# alter index for employees
 @app.route('/')
 def index():
   """
@@ -133,6 +134,10 @@ def index():
                               location_city=result['location_city']))
     cursor.close()
 
+    # Query for employeeof
+    cmd = "SELECT location_id FROM employeeof WHERE user_id = :user_id";
+    cursor = g.conn.execute(text(cmd), user_id = session['user_id']);
+    
     #
     # Flask uses Jinja templates, which is an extension to HTML where you can
     # pass data to a template and dynamically generate HTML based on the data
@@ -245,24 +250,45 @@ def add():
 # Add new user and customer to database
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+  # Query for location information for employee dropdown
+  cmd = 'SELECT * FROM restaurant';
+  cursor = g.conn.execute(text(cmd));
+  restaurants = []
+  for result in cursor:
+    restaurants.append(dict(location=str(result['location_id']) + ' ' + str(result['location_name'])))
+  cursor.close()
+
+  context = dict(data = restaurants)
+  
+  if request.method == 'GET':
+    return render_template("register.html", **context)
+  
   if request.method == 'POST':
+    context = dict(data = restaurants)
     name = request.form['name']
     username = request.form['username']
     password = request.form['password']
     confirm_password = request.form['confirm-password']
     email = request.form['email']
     dob = request.form['dob']
+    employee = request.form.getlist('employee')
+    location_id = request.form.get('locations').split()[0]
+    
+    # Check username length
+    if len(username) < 1:
+      flash('Username is required')
+      return render_template('register.html', **context)
     
     # Confirm passwords
     if password != confirm_password:
       flash('Passwords do not match')
-      return render_template('register.html')
+      return render_template('register.html', **context)
 
     # Check password length
     if len(password) < 8:
       flash('Password must contain at least 8 characters')
-      return render_template('register.html')
-    
+      return render_template('register.html', **context)
+
     # Check availability of username
     cmd = 'SELECT * FROM users WHERE username = (:username)';
     cursor = g.conn.execute(text(cmd), username = username);
@@ -273,7 +299,7 @@ def register():
 
     if len(users) != 0:
       flash('Username already in use')
-      return render_template('register.html')
+      return render_template('register.html', **context)
     
     # FIXME remove print when deployed
     print("""name: {}, username: {}, password: ********,
@@ -295,12 +321,21 @@ def register():
     cmd = """INSERT INTO customer VALUES (:user_id, :dob, :email)""";
     g.conn.execute(text(cmd), user_id=user_id, dob=dob, email=email);
 
-    flash('Registration successful')
+    # Insert new employee
+    if len(employee) > 0:
+      cmd = 'INSERT INTO employeeof VALUES (:user_id, NULL, :location_id)';
+      g.conn.execute(text(cmd), user_id=user_id, location_id=location_id);
+
+    # Format registration successful flash
+    if len(employee) > 0:
+      flash('User and employee registration successful: employee of {}'.format(location_id))
+    else:
+      flash('User registration successful')
     return render_template("login.html")
   else:
-    return render_template("register.html")
+    return render_template("register.html", **context)
 
-# Add logic for user login and user registration
+
 @app.route('/login', methods=['POST'])
 def login():
   username = request.form['username']
@@ -322,6 +357,7 @@ def login():
   else:
     flash('Wrong password')
   return index()
+
 
 @app.route('/logout')
 def logout():

@@ -10,7 +10,7 @@ body {
     background-color: #3498DB;
     padding: 50px;
 }
-footer {
+header {
     color: #fff;
 }
 .login {
@@ -123,4 +123,7 @@ a: link {
 }
 a: visited {
     color: #333399;
+}
+select {
+    width: 250px;
 }

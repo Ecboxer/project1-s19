@@ -19,20 +19,29 @@ You're logged in already!
 		    <label class="register-field-icon fui-user" for="register-name"></label></div>
 		<div class="control-group">
 		    <input type="text" class="register-field" value="" placeholder="username" name="username">
-		    <label class="register-field-icon fui-user" for="register-username"></label></div>
+		    <label class="register-field-icon fui-user" for="register-username">Required</label></div>
 		<div class="control-group">
 		    <input type="password" class="register-field" value="" placeholder="password" name="password">
-		    <label class="register-field-icon fui-lock" for="register-pass">Must contain at least 8 characters</label></div>
+		    <label class="register-field-icon fui-lock" for="register-pass">Required</label></div>
 		<div class="control-group">
 		    <input type="password" class="register-field" value="" placeholder="confirm password" name="confirm-password">
-		    <label class="register-field-icon fui-lock" for="register-conf-pass"></label></div>
+		    <label class="register-field-icon fui-lock" for="register-conf-pass">Must contain at least 8 characters</label></div>
 		<div class="control-group">
 		    <input type="text" class="register-field" value="" placeholder="email" name="email">
 		    <label class="register-field-icon fui-lock" for="register-pass"></label></div>
 		<div class="control-group">
 		    <input type="date" class="register-field" value="" placeholder="" name="dob">
 		    <label class="register-field-icon fui-lock" for="register-dob"></label></div>
-		<input type="submit" value="Submit" class="btn btn-primary btn-large btn-block">
+		<div class="control-group">
+		    <input type="checkbox" name="employee" value="employee">Register as an employee</div>
+		    <div class="control-group">
+			<select name="locations">
+			    {% for n in data %}
+			    <option value="{{n.location}}" SELECTED>{{n.location}}</option>
+			    {% endfor %}
+			</select>
+		    </div>
+		    <input type="submit" value="Submit" class="btn btn-primary btn-large btn-block">
 	    </div>
 	</div>
     </div>
