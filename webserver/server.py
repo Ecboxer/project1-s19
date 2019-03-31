@@ -162,10 +162,19 @@ def menu(location_id):
     
     menus = []
     for result in cursor:
-      menus.append(dict(menu_id=result['menu_id'], menu_name=result['menu_name']))
+      menus.append(dict(menu_id=result['menu_id'],
+                        menu_name=result['menu_name']))
     cursor.close()
 
-    context = dict(data = menus)
+    # Query for location_name
+    cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+    
+    for result in cursor:
+      location_name = result['location_name']
+    cursor.close()
+
+    context = dict(data = menus, location_name = location_name)
 
     return render_template("menu.html", **context)
 
@@ -193,16 +202,27 @@ def items(menu_id):
                         attribute_name=result['attribute_name'],
                         menu_item_price=round(result['menu_item_price'], 2)))
     cursor.close()
-
+    
     # Query for location_id
-    cmd = "SELECT location_id FROM menu WHERE menu_id = :menu_id";
+    cmd = "SELECT location_id, menu_name FROM menu WHERE menu_id = :menu_id";
     cursor = g.conn.execute(text(cmd), menu_id = menu_id);
     
     for result in cursor:
       location_id = result['location_id']
+      menu_name = result['menu_name']
     cursor.close()
 
-    context = dict(data = items, location_id = location_id)
+    # Query for location_name
+    cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+    
+    for result in cursor:
+      location_name = result['location_name']
+    cursor.close()
+
+
+    context = dict(data = items, location_id = location_id,
+                   location_name = location_name, menu_name = menu_name)
 
     return render_template("items.html", **context)
 
