@@ -85,6 +85,45 @@ input:focus {
     background-color: #2980B9;
 }
 
+.btn-order {
+    border: 2px solid transparent;
+    background: #fff;
+    color: #000;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25px;
+    padding: 10px 0;
+    text-decoration: none;
+    text-shadow: none;
+    border-radius: 3px;
+    box-shadow: none;
+    transition: 0.25s;
+    display: block;
+    width: 250px;
+    margin: 0 auto;
+}
+
+.btn-order:hover {
+    background-color: #fce44e;
+}
+
+.btn-check {
+    border: 2px solid transparent;
+    background: #fff;
+    color: #000;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25px;
+    padding: 10px 0;
+    text-decoration: none;
+    text-shadow: none;
+    border-radius: 3px;
+    box-shadow: none;
+    transition: 0.25s;
+    width: 100px;
+    margin: 10;
+}
+
 .login-link {
     font-size: 12px;
     color: #444;
@@ -126,4 +165,7 @@ a: visited {
 }
 select {
     width: 250px;
+}
+input[type="number"] {
+    width: 50px;
 }
