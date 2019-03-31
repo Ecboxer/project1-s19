@@ -157,17 +157,46 @@ def menu(location_id):
   else:
 
     # Query for menus
-    cmd = "SELECT menu_name FROM menu WHERE location_id = :location_id";
+    cmd = "SELECT menu_id, menu_name FROM menu WHERE location_id = :location_id";
     cursor = g.conn.execute(text(cmd), location_id = location_id);
     
     menus = []
     for result in cursor:
-      menus.append(dict(menu_name=result['menu_name']))
+      menus.append(dict(menu_id=result['menu_id'], menu_name=result['menu_name']))
     cursor.close()
 
     context = dict(data = menus)
 
     return render_template("menu.html", **context)
+
+
+# Display items of selected restaurant and menu
+@app.route('/<string:menu_id>/items', methods=['GET', 'POST'])
+def items(menu_id):
+  print(menu_id)
+  # Login logic
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+
+    # Query for items
+    cmd = """SELECT menu_id, item_id, menu_section_name, menu_item_name, menu_item_description, attribute_name, menu_item_price
+        FROM item WHERE menu_id = :menu_id""";
+    cursor = g.conn.execute(text(cmd), menu_id = menu_id);
+    
+    items = []
+    for result in cursor:
+      items.append(dict(item_id=result['item_id'],
+                        menu_section_name=result['menu_section_name'],
+                        menu_item_name=result['menu_item_name'],
+                        menu_item_description=result['menu_item_description'],
+                        attribute_name=result['attribute_name'],
+                        menu_item_price=round(result['menu_item_price'], 2)))
+    cursor.close()
+
+    context = dict(data = items)
+
+    return render_template("items.html", **context)
 
 
 # Example alternate route

@@ -1,0 +1,36 @@
+<link rel="stylesheet" href="/static/style.css" type="text/css">
+<html>
+
+    <body>
+	<h1>Items</h1>
+
+	<table>
+	    <thead>
+		<tr>
+		    <th>Quantity?</th>
+		    <th>Section</th>
+		    <th>Item</th>
+		    <th>Description</th>
+		    <th>Price</th>
+		</tr>
+	    </thead>
+	    <tbody>
+		{% for n in data %}
+		<tr>
+		    <td></td>
+		    <td class="menu_section">{{n.menu_section_name}}</td>
+		    <td class="menu_item_name">{{n.menu_item_name}}</td>
+		    <td class="menu_item_description">{{n.menu_item_description}}</td>
+		    <td class="menu_item_price">{{n.menu_item_price}}</td>
+		</tr>
+		{% endfor %}
+	    </tbody>
+	</table>
+
+	<footer>
+	    <p><a href="/">Back to restaurants</a></p>
+	    <p><a href="/logout">Logout</a></p>
+	</footer>
+
+    </body>
+</html>

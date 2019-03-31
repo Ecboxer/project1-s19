@@ -14,8 +14,8 @@
 	    <tbody>
 		{% for n in data %}
 		<tr>
-		    <td><a href="#">View Items</a></td>
-		    <td class='menu_name'>{{n.menu_name}}</td>
+		    <td><a href="/{{n.menu_id}}/items">View Items</a></td>
+		    <td class="menu_name">{{n.menu_name}}</td>
 		</tr>
 		{% endfor %}
 	    </tbody>
