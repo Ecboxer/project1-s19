@@ -295,6 +295,10 @@ def items(menu_id):
 # Employee console landing page
 @app.route('/employee')
 def employee():
+  # TODO Get locations for the employee
+  # TODO Get menus for the locations
+  # TODO Add menus
+  # TODO Add items
   return render_template("employee.html")
   
 
