@@ -23,6 +23,7 @@ from flask import Flask, request, render_template, g, redirect, Response, flash,
 from datetime import datetime
 import time
 import random
+from credentials import get_db_user, get_db_password
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -39,8 +40,8 @@ app = Flask(__name__, template_folder=tmpl_dir)
 # For your convenience, we already set it to the class database
 
 # Use the DB credentials you received by e-mail
-DB_USER = "zj2249"
-DB_PASSWORD = "hNKmaOLWl2"
+DB_USER = get_db_user()
+DB_PASSWORD = get_db_password()
 
 DB_SERVER = "w4111.cisxo09blonu.us-east-1.rds.amazonaws.com"
 
@@ -79,6 +80,7 @@ def before_request():
     import traceback; traceback.print_exc()
     g.conn = None
 
+    
 @app.teardown_request
 def teardown_request(exception):
   """
@@ -139,6 +141,9 @@ def index():
     # Query for employeeof
     cmd = "SELECT location_id FROM employeeof WHERE user_id = :user_id";
     cursor = g.conn.execute(text(cmd), user_id = session['user_id']);
+    for result in cursor:
+      employeeof_location_id = result['location_id']
+    cursor.close()
     
     #
     # Flask uses Jinja templates, which is an extension to HTML where you can
