@@ -106,7 +106,6 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
-# alter index for employees
 @app.route('/')
 def index():
   """
@@ -139,6 +138,7 @@ def index():
     cursor.close()
 
     # Query for employeeof
+    employeeof_location_id = None
     cmd = "SELECT location_id FROM employeeof WHERE user_id = :user_id";
     cursor = g.conn.execute(text(cmd), user_id = session['user_id']);
     for result in cursor:
@@ -151,7 +151,7 @@ def index():
     # (you can think of it as simple PHP)
     # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
     #
-    context = dict(data = restaurants)
+    context = dict(data = restaurants, employeeof_location_id = employeeof_location_id)
 
     #
     # render_template looks in the templates/ folder for files.
@@ -293,6 +293,12 @@ def items(menu_id):
       return render_template("items.html", **context)
 
 
+# Employee console landing page
+@app.route('/employee')
+def employee():
+  return render_template("employee.html")
+  
+
 # Example alternate route
 @app.route('/another')
 def another():
@@ -307,6 +313,7 @@ def add():
   cmd = 'INSERT INTO test(name) VALUES (:name1)';
   g.conn.execute(text(cmd), name1 = name);
   return redirect('/')
+
 
 # Add new user and customer to database
 @app.route('/register', methods=['GET', 'POST'])

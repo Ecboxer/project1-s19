@@ -5,6 +5,9 @@
 
     <header>
 	<p><a href="/logout">Logout</a></p>
+	{% if employeeof_location_id %}
+	<p><a href="/employee">Employee Console</a></p>
+	{% endif %}
     </header>
     
     <body>
