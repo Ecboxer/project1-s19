@@ -283,7 +283,8 @@ def items(menu_id):
           conf_msg += menu_item_name + ' x ' + quantity + '\n'
 
       # Show order confirmation
-      flash(conf_msg)
+      if len(conf_msg) > 0:
+        flash(conf_msg)
       return render_template("items.html", **context)
 
 
