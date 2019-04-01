@@ -23,7 +23,7 @@ from flask import Flask, request, render_template, g, redirect, Response, flash,
 from datetime import datetime
 import time
 import random
-from credentials import get_db_user, get_db_password
+import credentials
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -40,8 +40,8 @@ app = Flask(__name__, template_folder=tmpl_dir)
 # For your convenience, we already set it to the class database
 
 # Use the DB credentials you received by e-mail
-DB_USER = get_db_user()
-DB_PASSWORD = get_db_password()
+DB_USER = credentials.get_db_user()
+DB_PASSWORD = credentials.get_db_password()
 
 DB_SERVER = "w4111.cisxo09blonu.us-east-1.rds.amazonaws.com"
 
@@ -238,7 +238,6 @@ def items(menu_id):
       return render_template("items.html", **context)
     
     if request.method == 'POST':
-      # TODO fails when pickup is checked, menu_item_name not defined
       # Generate order_id
       machine_id = '12345678'
       secs = str(int(round(time.time())))
