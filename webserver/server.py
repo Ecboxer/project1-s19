@@ -151,7 +151,7 @@ def index():
     # (you can think of it as simple PHP)
     # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
     #
-    context = dict(data = restaurants, employeeof_location_id = employeeof_location_id)
+    context = dict(data = restaurants, employeeof_location_id = employeeof_location_id, user_id=session.get('user_id'))
 
     #
     # render_template looks in the templates/ folder for files.
@@ -434,6 +434,36 @@ def logout():
   session['logged_in'] = False
   session.pop('user_id', None)
   return index()
+
+
+@app.route('/<string:user_id>/orderhistory', methods=['GET', 'POST'])
+def orderhistory(user_id):
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+
+    cmd = """
+    SELECT o.menu_item_name, o.quantity, r.location_name, o.order_placed, o.rating 
+    FROM placed p, ordered o, restaurant r
+    WHERE p.customer_id = :user_id AND p.order_id = o.order_id AND p.order_item_id = o.order_item_id
+    AND o.location_id = r.location_id """;
+    cursor = g.conn.execute(text(cmd), user_id=user_id);
+
+    orders = []
+    for result in cursor:
+      orders.append(dict(menu_item_name=result['menu_item_name'],
+                         quantity=result['quantity'],
+                         location_name=result['location_name'],
+                         order_placed=result['order_placed'],
+                         rating=result['rating']))
+    cursor.close()
+
+    context = dict(orders=orders)
+    if request.method == 'GET':
+      return render_template('orderhistory.html', **context)
+    else:
+      return render_template('orderhistory.html', **context)
+
 
 if __name__ == "__main__":
   import click
