@@ -23,6 +23,7 @@ from flask import Flask, request, render_template, g, redirect, Response, flash,
 from datetime import datetime
 import time
 import random
+import hashlib
 import credentials
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -61,7 +62,6 @@ engine.execute("""CREATE TABLE IF NOT EXISTS test (
   name text
 );""")
 engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
 
 
 @app.before_request
@@ -293,15 +293,99 @@ def items(menu_id):
 
 
 # Employee console landing page
-@app.route('/employee')
+@app.route('/employee', methods=['GET'])
 def employee():
-  # TODO Get locations for the employee
-  # TODO Get menus for the locations
-  # TODO Add menus
-  # TODO Add items
-  return render_template("employee.html")
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+    # Get locations of employee
+    cmd = "SELECT location_id FROM employeeof WHERE user_id = :user_id";
+    cursor = g.conn.execute(text(cmd), user_id=session['user_id']);
   
+    employee_location_ids = []
+    for result in cursor:
+      employee_location_ids.append(result['location_id'])
+    cursor.close()
 
+    location_info = []
+    for location_id in employee_location_ids:
+      # Query for location_name
+      cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+      cursor = g.conn.execute(text(cmd), location_id = location_id);
+    
+      for result in cursor:
+        location_info.append(str(location_id) + ' ' + result['location_name'])
+      cursor.close()
+  
+    context = dict(employee_location_ids=employee_location_ids, location_info=location_info)
+
+    return render_template("employee.html", **context)
+
+
+@app.route('/<string:location_id>/additem', methods=['GET', 'POST'])
+def additem(location_id):
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+    # TODO Insert item into item table
+    # TODO submit button 404s
+    # Query for location_name
+    cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+
+    for result in cursor:
+      location_name = result['location_name']
+    cursor.close()
+
+    # Get menus for the location
+    menu_info = []
+    cmd = "SELECT menu_id, menu_name FROM menu WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id=location_id);
+    for result in cursor:
+      menu_info.append({'menu_id': result['menu_id'], 'menu_name': result['menu_name']})
+    cursor.close()
+  
+    context = dict(location_id=location_id, location_name=location_name, menu_info=menu_info)
+
+    if request.method == 'GET':
+      return render_template('additem.html', **context)
+
+    if request.method == 'POST':
+      menu_id = request.form['menus']
+      item_name = request.form['add-item-name']
+      menu_section_name = request.form['add-item-section']
+      item_description = request.form['add-item-description']
+      item_attributes = request.form['add-item-attributes']
+      item_price = request.form['add-item-price']
+      print(menu_id, item_name, item_description, item_attributes, item_price)
+
+      # Check item name
+      if len(item_name) < 1:
+        flash('Enter an item name')
+        return render_template('additem.html', **context)
+
+      if len(item_price) < 1:
+        flash('Enter an item price')
+        return render_template('additem.html', **context)
+
+      # Generate new item id
+      for menu in context['menu_info']:
+        if menu['menu_id'] == str(menu_id):
+          menu_name = menu['menu_name']
+      temp_string = str(location_id) + menu_name + item_name
+      item_id = hashlib.md5(temp_string.encode('utf-8')).hexdigest()
+      
+      # Insert new item
+      cmd = """INSERT INTO item(menu_id, item_id, menu_section_name, menu_item_name, menu_item_description, attribute_name, menu_item_price)
+          VALUES (:menu_id, :item_id, :menu_section_name, :item_name, :item_description, :item_attributes, :item_price)"""
+      g.conn.execute(text(cmd), menu_id=menu_id, item_id=item_id, menu_section_name=menu_section_name,
+                     item_name=item_name, item_description=item_description,
+                     item_attributes=item_attributes, item_price=item_price)
+      
+      flash('New item: ' + item_name)
+      return render_template('additem.html', **context)
+
+  
 # Example alternate route
 @app.route('/another')
 def another():
@@ -387,6 +471,7 @@ def register():
     for result in cursor:
       user_id = result['user_id']
     cursor.close()
+    
     # Insert new customer
     cmd = """INSERT INTO customer VALUES (:user_id, :dob, :email)""";
     g.conn.execute(text(cmd), user_id=user_id, dob=dob, email=email);

@@ -1,0 +1,55 @@
+<link rel="stylesheet" href="/static/style.css" type="text/css">
+{% extends "layout.html" %}
+{% block body %}
+<html>
+    <head>
+	<meta charset="utf-8"
+    </head>
+    <header>
+	<p><a href="/logout">Logout</a></p>
+	<p><a href="/">Back to Index</a></p>
+	<p><a href="/employee">Employee Console</a></p>
+    </header>
+    <body>
+	<h1>Employee Console</h1>
+	<h2>Location: {{location_name}}</h2>
+	<form action="/{{location_id}}/additem" method="POST">
+	    <div class="add-item">
+		<div class="add-item-screen">
+		    <div class="app-title">
+			<h2>Add Item</h2>
+		    </div>
+		    <div class="add-item-form">
+			<div class="control-group">
+			    <h3>Select Menu</h3>
+			    <select name="menus">
+				{% for n in menu_info %}
+				<option value="{{n.menu_id}}" SELECTED>{{n.menu_name}}</option>
+				{% endfor %}
+			    </select>
+			</div>
+			<div class="control-group">
+			    <h3>Item Information</h3>
+			    <input type="text" class="add-item-field" value="" placeholder="item name" name="add-item-name">
+			    <label class="register-field-icon fui-user" for="add-item-name">Required</label></div>
+			<div class="control-group">
+			    <input type="text" class="add-item-field" value="" placeholder="menu section" name="add-item-section">
+			    <label class="register-field-icon fui-user" for="add-item-section"></label></div>
+			<div class="control-group">
+			    <input type="text" class="add-item-field" value="" placeholder="item description" name="add-item-description">
+			    <label class="register-field-icon fui-user" for="add-item-description"></label></div>
+			<div class="control-group">
+			    <input type="text" class="add-item-field" value="" placeholder="attributes" name="add-item-attributes">
+			    <label class="register-field-icon fui-user" for="add-item-field">Vegan, Gluten-Free, etc</label></div>
+			<div class="control-group">
+			    <input type="number" class="add-item-price" value="" name="add-item-price" min="0.00" step="0.01" max="9999" placeholder="0.00" style="width: 100px">
+			    <label class="register-field-icon fui-user" for="add-item-field">Price - Required</label></div>
+			<input type="submit" value="Submit" class="btn btn-primary btn-large btn-block">
+			</div>
+		    </div>
+		</div>
+	    </div>
+	</form>
+    </body>
+</html>
+{% endblock %}
