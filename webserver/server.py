@@ -327,8 +327,6 @@ def additem(location_id):
   if not session.get('logged_in'):
     return render_template('login.html')
   else:
-    # TODO Insert item into item table
-    # TODO submit button 404s
     # Query for location_name
     cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
     cursor = g.conn.execute(text(cmd), location_id = location_id);
@@ -384,6 +382,39 @@ def additem(location_id):
       
       flash('New item: ' + item_name)
       return render_template('additem.html', **context)
+
+
+@app.route('/<string:location_id>/updatedeleteitem', methods=['GET', 'POST'])
+def updatedeleteitem(location_id):
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+    # TODO Display all items, information and option to delete
+    # TODO Update item information on submit
+    # TODO Delete item from item table
+    # Query for location_name
+    cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+
+    for result in cursor:
+      location_name = result['location_name']
+    cursor.close()
+
+    # Get menus for the location
+    menu_info = []
+    cmd = "SELECT menu_id, menu_name FROM menu WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id=location_id);
+    for result in cursor:
+      menu_info.append({'menu_id': result['menu_id'], 'menu_name': result['menu_name']})
+    cursor.close()
+  
+    context = dict(location_id=location_id, location_name=location_name, menu_info=menu_info)
+
+    if request.method == 'GET':
+      return render_template('updatedeleteitem.html', **context)
+
+    if request.method == 'POST':
+      return render_template('updatedeleteitem.html', **context)
 
   
 # Example alternate route

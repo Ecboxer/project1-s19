@@ -22,8 +22,7 @@
 			<thead>
 			    <tr>
 				<th>Add Item</th>
-				<th>Update Item</th>
-				<th>Delete Item</th>
+				<th>Update or Delete Item</th>
 				<th>Restaurant</th>
 			    </tr>
 			</thead>
@@ -31,8 +30,7 @@
 			    {% for n in location_info %}
 			    <tr>
 				<td><a href="/{{n.split()[0]}}/additem">Add</a></td>
-				<td><a href="/{{n.split()[0]}}/updateitem">Update</a></td>
-				<td><a href="/{{n.split()[0]}}/deleteitem">Delete</a></td>
+				<td><a href="/{{n.split()[0]}}/updatedeleteitem">Update or Delete</a></td>
 				<td class="location_name">{{n}}</td>
 			    </tr>
 			    {% endfor %}

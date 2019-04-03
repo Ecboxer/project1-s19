@@ -1,0 +1,32 @@
+<link rel="stylesheet" href="/static/style.css" type="text/css">
+{% extends "layout.html" %}
+{% block body %}
+<html>
+    <head>
+	<meta charset="utf-8"
+    </head>
+    <header>
+	<p><a href="/logout">Logout</a></p>
+	<p><a href="/">Back to Index</a></p>
+	<p><a href="/employee">Employee Console</a></p>
+    </header>
+    <body>
+	<h1>Employee Console</h1>
+	<h2>Location: {{location_name}}</h2>
+	<form action="/{{location_id}}/updatedeleteitem" method="POST">
+	    <table>
+		<tr>
+		    <th>Delete</th>
+		    <th>Menu</th>
+		    <th>Menu Section</th>
+		    <th>Item</th>
+		    <th>Description</th>
+		    <th>Attributes</th>
+		    <th>Price</th>
+		    <th>Update</th>
+		</tr>
+	    </table>
+	</form>
+    </body>
+</html>
+{% endblock %}
