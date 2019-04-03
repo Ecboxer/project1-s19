@@ -135,6 +135,27 @@ input:focus {
     margin: 10;
 }
 
+.btn-update {
+    border: 2px solid transparent;
+    background: #fff;
+    color: #000;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25px;
+    padding: 10px 0;
+    text-decoration: none;
+    text-shadow: none;
+    border-radius: 3px;
+    box-shadow: none;
+    transition: 0.25s;
+    width: 200px;
+    margin: 10;
+}
+
+.btn-update:hover {
+    background-color: #fce44e;
+}
+
 .login-link {
     font-size: 12px;
     color: #444;
