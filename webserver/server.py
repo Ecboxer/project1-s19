@@ -443,15 +443,17 @@ def orderhistory(user_id):
   else:
 
     cmd = """
-    SELECT o.menu_item_name, o.quantity, r.location_name, o.order_placed, o.rating 
+    SELECT o.order_id, o.order_item_id, o.menu_item_name, o.quantity, r.location_name, o.order_placed, o.rating 
     FROM placed p, ordered o, restaurant r
-    WHERE p.customer_id = :user_id AND p.order_id = o.order_id AND p.order_item_id = o.order_item_id
+    WHERE p.customer_id = :user_id AND p.order_id = o.order_id
     AND o.location_id = r.location_id """;
     cursor = g.conn.execute(text(cmd), user_id=user_id);
 
     orders = []
     for result in cursor:
-      orders.append(dict(menu_item_name=result['menu_item_name'],
+      orders.append(dict(order_id=result['order_id'],
+                         order_item_id=result['order_item_id'],
+                         menu_item_name=result['menu_item_name'],
                          quantity=result['quantity'],
                          location_name=result['location_name'],
                          order_placed=result['order_placed'],
@@ -462,7 +464,27 @@ def orderhistory(user_id):
     if request.method == 'GET':
       return render_template('orderhistory.html', **context)
     else:
-      return render_template('orderhistory.html', **context)
+      # used to identify every 3 terms (order_id, order_item_id, rating)
+      cur_order_id = None
+      cur_order_item_id = None
+      cur_rating = None
+      rating_list = request.form.getlist('rating')
+      for ind, entry in enumerate(rating_list):
+        if ind % 3 == 2: # rating
+          if entry != '':
+            cur_order_id = rating_list[ind - 2]
+            cur_order_item_id = rating_list[ind - 1]
+            cur_rating = entry
+            for d in orders:
+              if d['order_id'] == cur_order_id and d['order_item_id'] == cur_order_item_id:
+                d['rating'] = cur_rating
+            # Update Command
+            cmd = """UPDATE ordered SET rating= :rating 
+            WHERE order_id= :order_id AND order_item_id= :order_item_id""";
+            g.conn.execute(text(cmd), rating=cur_rating, order_id=cur_order_id, order_item_id=cur_order_item_id);
+
+      context_updated = dict(orders=orders)
+      return render_template('orderhistory.html', **context_updated)
 
 
 if __name__ == "__main__":
