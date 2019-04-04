@@ -1,0 +1,45 @@
+<link rel="stylesheet" href="/static/style.css" type="text/css">
+{% extends "layout.html" %}
+{% block body %}
+<html>
+
+    <header>
+	<p><a href="/">Back to Main Page</a></p>
+	<p><a href="/logout">Logout</a></p>
+    </header>
+
+    <body>
+    <h1>My Order History</h1>
+    <form method="POST" id="rating-form">
+        <input type="submit" value="Submit Rating" class="btn-order btn-primary btn-large btn-block">
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Restaurant</th>
+            <th>Time</th>
+            <th>Rating</th>
+        </tr>
+        </thead>
+        <tbody>
+            {%  for n in orders %}
+                <tr>
+                    <td class="menu_item_name">{{n.menu_item_name}}</td>
+                    <td class="quantity">{{n.quantity}}</td>
+                    <td class="location_name">{{n.location_name}}</td>
+                    <td class="order_placed">{{n.order_placed}}</td>
+                    <td>
+                        <input type = "hidden" name="rating" value = "{{n.order_id}}" form="rating-form">
+                        <input type = "hidden" name="rating" value = "{{n.order_item_id}}" form="rating-form">
+                        <input type="number" id="id" name="rating" value="{{n.rating}}" form="rating-form" min="1" max="5">
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </body>
+</html>
+{% endblock %}

@@ -5,9 +5,9 @@
 
     <header>
 	<p><a href="/logout">Logout</a></p>
-	<p><a href="#">Order History</a><p>
+    <p><a href="/{{user_id}}/orderhistory">My Order History</a></p>
 	{% if employeeof_location_id %}
-	<p><a href="/employee">Employee Console</a></p>
+	    <p><a href="/employee">Employee Console</a></p>
 	{% endif %}
     </header>
     
