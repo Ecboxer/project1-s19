@@ -4,8 +4,8 @@
 <html>
 
     <header>
-	<p><a href="/{{location_id}}/menu">Back to menus</a></p>
 	<p><a href="/logout">Logout</a></p>
+	<p><a href="/{{location_id}}/menu">Back to menus</a></p>
     </header>
 
     <body>
@@ -37,6 +37,7 @@
 		    <td class="menu_item_name">{{n.menu_item_name}}</td>
 		    <td class="menu_item_description">{{n.menu_item_description}}</td>
 		    <td class="menu_item_price">{{n.menu_item_price}}</td>
+
 		</tr>
 		{% endfor %}
 	    </tbody>

@@ -19,10 +19,11 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask
-from flask import Flask, request, render_template, g, redirect, Response, flash, session, abort
+from flask import Flask, request, render_template, g, redirect, Response, flash, session, abort, url_for
 from datetime import datetime
 import time
 import random
+import hashlib
 import credentials
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -61,7 +62,6 @@ engine.execute("""CREATE TABLE IF NOT EXISTS test (
   name text
 );""")
 engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
 
 
 @app.before_request
@@ -293,15 +293,181 @@ def items(menu_id):
 
 
 # Employee console landing page
-@app.route('/employee')
+@app.route('/employee', methods=['GET'])
 def employee():
-  # TODO Get locations for the employee
-  # TODO Get menus for the locations
-  # TODO Add menus
-  # TODO Add items
-  return render_template("employee.html")
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+    # Get locations of employee
+    cmd = "SELECT location_id FROM employeeof WHERE user_id = :user_id";
+    cursor = g.conn.execute(text(cmd), user_id=session['user_id']);
   
+    employee_location_ids = []
+    for result in cursor:
+      employee_location_ids.append(result['location_id'])
+    cursor.close()
 
+    location_info = []
+    for location_id in employee_location_ids:
+      # Query for location_name
+      cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+      cursor = g.conn.execute(text(cmd), location_id = location_id);
+    
+      for result in cursor:
+        location_info.append(str(location_id) + ' ' + result['location_name'])
+      cursor.close()
+  
+    context = dict(employee_location_ids=employee_location_ids, location_info=location_info)
+
+    return render_template("employee.html", **context)
+
+
+@app.route('/<string:location_id>/additem', methods=['GET', 'POST'])
+def additem(location_id):
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+    # Query for location_name
+    cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+
+    for result in cursor:
+      location_name = result['location_name']
+    cursor.close()
+
+    # Get menus for the location
+    menu_info = []
+    cmd = "SELECT menu_id, menu_name FROM menu WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id=location_id);
+    for result in cursor:
+      menu_info.append({'menu_id': result['menu_id'], 'menu_name': result['menu_name']})
+    cursor.close()
+  
+    context = dict(location_id=location_id, location_name=location_name, menu_info=menu_info)
+
+    if request.method == 'GET':
+      return render_template('additem.html', **context)
+
+    if request.method == 'POST':
+      menu_id = request.form['menus']
+      item_name = request.form['add-item-name']
+      menu_section_name = request.form['add-item-section']
+      item_description = request.form['add-item-description']
+      item_attributes = request.form['add-item-attributes']
+      item_price = request.form['add-item-price']
+      print(menu_id, item_name, item_description, item_attributes, item_price)
+
+      # Check item name
+      if len(item_name) < 1:
+        flash('Enter an item name')
+        return render_template('additem.html', **context)
+
+      if len(item_price) < 1:
+        flash('Enter an item price')
+        return render_template('additem.html', **context)
+
+      # Generate new item id
+      for menu in context['menu_info']:
+        if menu['menu_id'] == str(menu_id):
+          menu_name = menu['menu_name']
+      temp_string = str(location_id) + menu_name + item_name
+      item_id = hashlib.md5(temp_string.encode('utf-8')).hexdigest()
+      
+      # Insert new item
+      cmd = """INSERT INTO item(menu_id, item_id, menu_section_name, menu_item_name, menu_item_description, attribute_name, menu_item_price)
+          VALUES (:menu_id, :item_id, :menu_section_name, :item_name, :item_description, :item_attributes, :item_price)"""
+      g.conn.execute(text(cmd), menu_id=menu_id, item_id=item_id, menu_section_name=menu_section_name,
+                     item_name=item_name, item_description=item_description,
+                     item_attributes=item_attributes, item_price=item_price)
+      
+      flash('New item: ' + item_name)
+      return render_template('additem.html', **context)
+
+
+@app.route('/<string:location_id>/updateitem', methods=['GET', 'POST'])
+def updatedeleteitem(location_id):
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+    # TODO Refresh item display info after form submit
+    # Query for location_name
+    cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+
+    for result in cursor:
+      location_name = result['location_name']
+    cursor.close()
+
+    # Get menus for the location
+    menu_info = []
+    cmd = "SELECT menu_id, menu_name FROM menu WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id=location_id);
+    for result in cursor:
+      menu_info.append({'menu_id': result['menu_id'], 'menu_name': result['menu_name']})
+    cursor.close()
+
+    # Get items for all menus
+    item_info = []
+    for menu in menu_info:
+      cmd = """SELECT item_id, menu_section_name, menu_item_name, menu_item_description, attribute_name, menu_item_price
+          FROM item WHERE menu_id = :menu_id"""
+      cursor = g.conn.execute(text(cmd), menu_id=menu['menu_id'])
+      for result in cursor:
+        item_info.append({'menu_name': menu['menu_name'], 'item_id': result['item_id'],
+                          'menu_item_name': result['menu_item_name'],
+                          'menu_section_name': result['menu_section_name'],
+                          'menu_item_description': result['menu_item_description'],
+                          'attribute_name': result['attribute_name'],
+                          'menu_item_price': round(result['menu_item_price'], 2)})
+      cursor.close()
+  
+    context = dict(location_id=location_id, location_name=location_name, item_info=item_info)
+
+    if request.method == 'GET':
+      return render_template('updateitem.html', **context)
+
+    if request.method == 'POST':
+      update_boxes = request.form.getlist('update-box')
+      menu_sections = request.form.getlist('menu-section')
+      item_names = request.form.getlist('menu-item-name')
+      item_descriptions = request.form.getlist('menu-item-description')
+      attribute_names = request.form.getlist('menu-attribute-name')
+      item_prices = request.form.getlist('update-item-price')
+
+      # Find items selected for update
+      update_items = [int(x.split('-')[0]) for x in update_boxes]
+
+      # Check that updated items have updated content
+      for item_idx in update_items:
+        if len(menu_sections[item_idx]) == 0 and len(item_names[item_idx]) == 0 and len(item_descriptions[item_idx]) == 0 and len(attribute_names[item_idx]) == 0 and len(item_prices[item_idx]) == 0:
+          flash('Warning: Please enter some item information for updated items')
+          render_template('updateitem.html', **context)
+
+      n_updated = 0
+      # Update items
+      for i, item_idx in enumerate(update_items):
+        item_id = update_boxes[i].split('-')[2]
+        if len(menu_sections[item_idx]) > 0:
+          cmd = 'UPDATE item SET menu_section_name = :menu_section WHERE item_id = :item_id';
+          g.conn.execute(text(cmd), menu_section=menu_sections[item_idx], item_id=item_id)
+        if len(item_names[item_idx]) > 0:
+          cmd = 'UPDATE item SET menu_item_name = :item_name WHERE item_id = :item_id';
+          g.conn.execute(text(cmd), item_name=item_names[item_idx], item_id=item_id)
+        if len(item_descriptions[item_idx]) > 0:
+          cmd = 'UPDATE item SET menu_item_description = :item_description WHERE item_id = :item_id';
+          g.conn.execute(text(cmd), item_description=item_descriptions[item_idx], item_id=item_id)
+        if len(attribute_names[item_idx]) > 0:
+          cmd = 'UPDATE item SET attribute_name = :attribute_name WHERE item_id = :item_id';
+          g.conn.execute(text(cmd), attribute_name=attribute_names[item_idx], item_id=item_id)
+        if len(item_prices[item_idx]) > 0:
+          cmd = 'UPDATE item SET menu_item_price = :item_price WHERE item_id = :item_id';
+          g.conn.execute(text(cmd), item_price=item_prices[item_idx], item_id=item_id)
+        n_updated += 1
+      
+      flash('Number Updated: ' + str(n_updated))
+      return render_template('updateitem.html', **context)
+
+  
 # Example alternate route
 @app.route('/another')
 def another():
@@ -387,6 +553,7 @@ def register():
     for result in cursor:
       user_id = result['user_id']
     cursor.close()
+    
     # Insert new customer
     cmd = """INSERT INTO customer VALUES (:user_id, :dob, :email)""";
     g.conn.execute(text(cmd), user_id=user_id, dob=dob, email=email);

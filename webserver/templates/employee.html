@@ -5,20 +5,37 @@
 
     <header>
 	<p><a href="/logout">Logout</a></p>
-	<p><a href="employee">Employee Console</a></p>
+	<p><a href="/">Back to Index</a></p>
+	<p><a href="/employee">Employee Console</a></p>
     </header>
 
     <body>
 	<h1>Employee Console</h1>
 
 	<form action="#" method="POST">
-	    <div class="add-menus">
-		<div class="add-menus-screen">
-		    <h1>Add Menus</h1>
+	    <div class="select-restaurant">
+		<div class="select-restaurant-screen">
+		    <h1>Select Restaurant</h1>
 		</div>
-		<div class="add-menus-form">
-		    <div class="control-group">
-		    </div>
+		<div class="select-restaurant-form">
+		    <table>
+			<thead>
+			    <tr>
+				<th>Add Item</th>
+				<th>Update Item</th>
+				<th>Restaurant</th>
+			    </tr>
+			</thead>
+			<tbody>
+			    {% for n in location_info %}
+			    <tr>
+				<td><a href="/{{n.split()[0]}}/additem">Add</a></td>
+				<td><a href="/{{n.split()[0]}}/updateitem">Update</a></td>
+				<td class="location_name">{{n}}</td>
+			    </tr>
+			    {% endfor %}
+			</tbody>
+		    </table>
 		</div>
 	    </div>
 	</form>
