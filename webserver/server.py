@@ -654,6 +654,40 @@ def orderhistory(user_id):
       return render_template('orderhistory.html', **context_updated)
 
 
+
+@app.route('/<string:location_id>/pickup', methods=['GET', 'POST'])
+def pickup(location_id):
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+    # Query for location_name
+    cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+
+    for result in cursor:
+      location_name = result['location_name']
+    cursor.close()
+
+    # Get orders that have not been picked up TODO test
+    cmd = """SELECT o.pickup, o.order_id, p.customer_id, p.date_placed
+        FROM placed p, ordered o
+        WHERE p.order_id = o.order_id AND o.pickup = 'true' AND
+        o.order_id NOT IN (SELECT order_id FROM pickupBy)"""
+
+    # Get orders that have been picked up TODO test
+    cmd = """SELECT o.pickup, o.order_id, p.customer_id, p.date_placed, pB.pickup_time
+        FROM placed p, ordered o, pickupBy pB
+        WHERE p.order_id = o.order_id AND p.order_id = pB.order_id AND o.pickup = 'true'"""
+        
+    context = dict(location_id=location_id, location_name=location_name)
+
+    if request.method == 'GET':
+      return render_template('pickup.html', **context)
+
+    if request.method == 'POST':
+      pass
+    
+
 if __name__ == "__main__":
   import click
   app.secret_key = os.urandom(12)
