@@ -389,7 +389,6 @@ def updatedeleteitem(location_id):
   if not session.get('logged_in'):
     return render_template('login.html')
   else:
-    # TODO Refresh item display info after form submit
     # Query for location_name
     cmd = "SELECT location_name FROM restaurant WHERE location_id = :location_id";
     cursor = g.conn.execute(text(cmd), location_id = location_id);
@@ -420,7 +419,7 @@ def updatedeleteitem(location_id):
                           'attribute_name': result['attribute_name'],
                           'menu_item_price': round(result['menu_item_price'], 2)})
       cursor.close()
-  
+      
     context = dict(location_id=location_id, location_name=location_name, item_info=item_info)
 
     if request.method == 'GET':
@@ -444,24 +443,30 @@ def updatedeleteitem(location_id):
           render_template('updateitem.html', **context)
 
       n_updated = 0
-      # Update items
+      # Update items and context
       for i, item_idx in enumerate(update_items):
         item_id = update_boxes[i].split('-')[2]
+        updated_item = item_info[i]
         if len(menu_sections[item_idx]) > 0:
           cmd = 'UPDATE item SET menu_section_name = :menu_section WHERE item_id = :item_id';
-          g.conn.execute(text(cmd), menu_section=menu_sections[item_idx], item_id=item_id)
+          g.conn.execute(text(cmd), menu_section=menu_sections[item_idx], item_id=item_id);
+          updated_item['menu_section_name'] = menu_sections[item_idx]
         if len(item_names[item_idx]) > 0:
           cmd = 'UPDATE item SET menu_item_name = :item_name WHERE item_id = :item_id';
-          g.conn.execute(text(cmd), item_name=item_names[item_idx], item_id=item_id)
+          g.conn.execute(text(cmd), item_name=item_names[item_idx], item_id=item_id);
+          updated_item['menu_item_name'] = item_names[item_idx]
         if len(item_descriptions[item_idx]) > 0:
           cmd = 'UPDATE item SET menu_item_description = :item_description WHERE item_id = :item_id';
-          g.conn.execute(text(cmd), item_description=item_descriptions[item_idx], item_id=item_id)
+          g.conn.execute(text(cmd), item_description=item_descriptions[item_idx], item_id=item_id);
+          updated_item['menu_item_description'] = item_descriptions[item_idx]
         if len(attribute_names[item_idx]) > 0:
           cmd = 'UPDATE item SET attribute_name = :attribute_name WHERE item_id = :item_id';
-          g.conn.execute(text(cmd), attribute_name=attribute_names[item_idx], item_id=item_id)
+          g.conn.execute(text(cmd), attribute_name=attribute_names[item_idx], item_id=item_id);
+          updated_item['attribute_name'] = attribute_names[item_idx]
         if len(item_prices[item_idx]) > 0:
           cmd = 'UPDATE item SET menu_item_price = :item_price WHERE item_id = :item_id';
-          g.conn.execute(text(cmd), item_price=item_prices[item_idx], item_id=item_id)
+          g.conn.execute(text(cmd), item_price=item_prices[item_idx], item_id=item_id);
+          updated_item['menu_item_price'] = item_prices[item_idx]
         n_updated += 1
       
       flash('Number Updated: ' + str(n_updated))
@@ -648,13 +653,15 @@ def orderhistory(user_id):
             # Update Command
             cmd = """UPDATE ordered SET rating= :rating 
             WHERE order_id= :order_id AND order_item_id= :order_item_id""";
-            g.conn.execute(text(cmd), rating=cur_rating, order_id=cur_order_id, order_item_id=cur_order_item_id);
+            g.conn.execute(text(cmd), rating=cur_rating, order_id=cur_order_id,
+                           order_item_id=cur_order_item_id);
 
       context_updated = dict(orders=orders)
       return render_template('orderhistory.html', **context_updated)
 
 
-
+# View orders awaiting pickup and already picked up
+# Mark and unmark orders as picked up
 @app.route('/<string:location_id>/pickup', methods=['GET', 'POST'])
 def pickup(location_id):
   if not session.get('logged_in'):
@@ -668,24 +675,91 @@ def pickup(location_id):
       location_name = result['location_name']
     cursor.close()
 
-    # Get orders that have not been picked up TODO test
-    cmd = """SELECT o.pickup, o.order_id, p.customer_id, p.date_placed
+    # Get orders that have not been picked up
+    cmd = """WITH DistinctOrders AS (
+        SELECT o.pickup, o.order_id, o.order_item_id, p.customer_id, p.date_placed,
+        ROW_NUMBER() OVER (PARTITION BY o.order_id) AS rownum
         FROM placed p, ordered o
-        WHERE p.order_id = o.order_id AND o.pickup = 'true' AND
-        o.order_id NOT IN (SELECT order_id FROM pickupBy)"""
-
+        WHERE p.order_id = o.order_id AND o.pickup = 'true' AND o.location_id = :location_id AND
+        (o.order_id, o.order_item_id) NOT IN (SELECT order_id, order_item_id FROM pickupBy)
+        ) SELECT * FROM DistinctOrders WHERE rownum = 1
+    """;
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+    to_pickup = []
+    for result in cursor:
+      to_pickup.append(dict(pickup=result['pickup'], order_id=result['order_id'],
+                            order_item_id=result['order_item_id'], customer_id=result['customer_id'],
+                            date_placed=result['date_placed']))
+    cursor.close()
+    
     # Get orders that have been picked up TODO test
-    cmd = """SELECT o.pickup, o.order_id, p.customer_id, p.date_placed, pB.pickup_time
+    cmd = """WITH DistinctOrders AS (
+        SELECT o.pickup, o.order_id, o.order_item_id, p.customer_id, p.date_placed, pB.pickup_time,
+        ROW_NUMBER() OVER (PARTITION BY o.order_id) AS rownum
         FROM placed p, ordered o, pickupBy pB
-        WHERE p.order_id = o.order_id AND p.order_id = pB.order_id AND o.pickup = 'true'"""
-        
-    context = dict(location_id=location_id, location_name=location_name)
+        WHERE p.order_id = o.order_id AND p.order_id = pB.order_id AND
+        o.location_id = :location_id AND o.pickup = 'true'
+        ) SELECT * FROM DistinctOrders WHERE rownum = 1
+    """;
+    cursor = g.conn.execute(text(cmd), location_id = location_id);
+    were_pickup = []
+    for result in cursor:
+      were_pickup.append(dict(pickup=result['pickup'], order_id=result['order_id'],
+                              order_item_id=result['order_item_id'], customer_id=result['customer_id'],
+                              date_placed=result['date_placed'], pickup_time=result['pickup_time']))
+    
+    context = dict(location_id=location_id, location_name=location_name, to_pickup=to_pickup,
+                   were_pickup=were_pickup)
 
     if request.method == 'GET':
       return render_template('pickup.html', **context)
 
     if request.method == 'POST':
-      pass
+      update_to_pickup = request.form.getlist('to_pickup-box')
+      update_were_pickup = request.form.getlist('were_pickup-box')
+      
+      dt = datetime.now()
+      conf_msg = ''
+      
+      n_to_pickup = 0
+      orders_marked_pickup = []
+      # Add orders to pickupBy
+      for order in update_to_pickup:
+        idx = int(order.split('-')[0])
+        order_info = to_pickup[idx]
+        
+        cmd = "INSERT INTO pickupBy VALUES (:customer_id, :order_id, :order_item_id, :pickup_time)";
+        g.conn.execute(text(cmd), customer_id=order_info['customer_id'], order_id=order_info['order_id'],
+                       order_item_id=order_info['order_item_id'], pickup_time=dt);
+        n_to_pickup += 1
+        # Update pickup time
+        order_info['pickup_time'] = dt
+        orders_marked_pickup.append(order_info)
+
+      n_were_pickup = 0
+      orders_unmarked_pickup = []
+      # Remove orders from pickupBy
+      for order in update_were_pickup:
+        idx = int(order.split('-')[0])
+        order_info = were_pickup[idx]
+        
+        cmd = "DELETE FROM pickupBy WHERE order_id = :order_id AND order_item_id = :order_item_id";
+        g.conn.execute(text(cmd), order_id=order_info['order_id'],
+                       order_item_id=order_info['order_item_id']);
+        n_were_pickup += 1
+        orders_unmarked_pickup.append(order_info)
+
+      # Update context
+      for order in orders_marked_pickup:
+        to_pickup.remove(order)
+        were_pickup.append(order)
+      for order in orders_unmarked_pickup:
+        were_pickup.remove(order)
+        to_pickup.append(order)
+      
+      flash('Marked {} items as picked up'.format(n_to_pickup))
+      flash('Unmarked {} items as picked up'.format(n_were_pickup))
+      return render_template('pickup.html', **context)
     
 
 if __name__ == "__main__":
