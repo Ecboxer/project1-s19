@@ -25,6 +25,7 @@
 				<th>Update Item</th>
 				<th>Pickup Console</th>
 				<th>Restaurant</th>
+                <th>Sales Dashboard</th>
 			    </tr>
 			</thead>
 			<tbody>
@@ -34,6 +35,7 @@
 				<td><a href="/{{n.split()[0]}}/updateitem">Update</a></td>
 				<td><a href="/{{n.split()[0]}}/pickup">Manage Pickups</a></td>
 				<td class="location_name">{{n}}</td>
+                <td><a href="/{{n.split()[0]}}/dashboard"> View </a></td>
 			    </tr>
 			    {% endfor %}
 			</tbody>
