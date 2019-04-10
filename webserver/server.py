@@ -760,7 +760,17 @@ def pickup(location_id):
       flash('Marked {} items as picked up'.format(n_to_pickup))
       flash('Unmarked {} items as picked up'.format(n_were_pickup))
       return render_template('pickup.html', **context)
-    
+
+
+# View sales statistics
+@app.route('/<string:location_id>/dashboard', methods=['GET', 'POST'])
+def dashboard(location_id):
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  else:
+    context = dict(location_id=location_id)
+    return render_template('dashboard.html', **context)
+
 
 if __name__ == "__main__":
   import click
