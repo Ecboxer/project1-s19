@@ -10,6 +10,9 @@ body {
     background-color: #3498DB;
     padding: 50px;
 }
+.container {
+    background-color: #fff;
+}
 header {
     color: #fff;
 }
@@ -200,4 +203,7 @@ select {
 }
 input[type="number"] {
     width: 50px;
+}
+.container h1 {
+    color: #606b6f;
 }
