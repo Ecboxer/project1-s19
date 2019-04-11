@@ -1,4 +1,8 @@
-<link rel="stylesheet" href="/static/style.css" type="text/css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/login.css">
+
 {% extends "layout.html" %}
 {% block body %}
 {% if session['logged_in'] %}
@@ -6,29 +10,21 @@
 You're logged in already!
 
 {% else %}
-
-<form action="/login" method="POST">
-    <div class="login">
-	<div class="login-screen">
-	    <div class="app-title">
-		<h1>Login</h1>
-	    </div>
-	    <div class="login-form">
-		<div class="control-group">
-		    <input type="text" class="login-field" value="" placeholder="username" name="username">
-		    <label class="login-field-icon fui-user" for="login-name"></label></div>
-		<div class="control-group">
-		    <input type="password" class="login-field" value="" placeholder="password" name="password">
-		    <label class="login-field-icon fui-lock" for="login-pass"></label></div>
-		<input type="submit" value="Log in" class="btn btn-primary btn-large btn-block">
-		<br>
-		<div class="control-group">
-		    <span>New User?</span>
-		    <a href="/register">Sign Up</a>
-		</div>
-		
-	    </div>
-	</div>
+<body class="text-center">
+    <div class="container">
+	<form class="form-signin" action="/login" method="POST">
+	    <br>
+	    <h1 class="h3 mb-3 font-weight-normal">Login</h1>
+	    <label class="sr-only" for="login-name">Username</label>
+	    <input type="text" id="login-name" class="form-control" value="" placeholder="Username" name="username" required="" autofocut="">
+	    <label class="sr-only" for="login-pass"></label>
+	    <input type="password" id="login-pass" class="form-control" value="" placeholder="Password" name="password">
+	    <br>
+	    <input type="submit" value="Log in" class="btn btn-primary btn-large btn-block">
+	    <br>
+	    <span>New User?</span>
+	    <a href="/register">Sign Up</a>
+	</form>
     </div>
-</form>{% endif %}
+</body>{% endif %}
 {% endblock %}
