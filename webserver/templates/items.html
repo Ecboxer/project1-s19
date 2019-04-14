@@ -1,48 +1,59 @@
-<link rel="stylesheet" href="/static/style.css" type="text/css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/items.css" type="text/css">
+
 {% extends "layout.html" %}
 {% block body %}
-<html>
 
+<body class="container">
+    <br>
     <header>
 	<p><a href="/logout">Logout</a></p>
 	<p><a href="/{{location_id}}/menu">Back to menus</a></p>
     </header>
 
-    <body>
-	<h1>{{location_name}}</h1>
-	<h2>{{menu_name}}</h2>
+    <h1>{{location_name}}</h1>
+    <h2>{{menu_name}}</h2>
 
-	<form method="POST" id="order-form">
-	    <input type="submit" value="Order" class="btn-order btn-primary btn-large btn-block">
-	    <br>
-	    <input type="checkbox" name="pickup" value="pickup" class="btn-check">Check for pickup
-	</form>
-	<table>
-	    <thead>
-		<tr>
-		    <th>Quantity</th>
-		    <th>Section</th>
-		    <th>Item</th>
-		    <th>Description</th>
-		    <th>Price</th>
-		</tr>
-	    </thead>
-	    <tbody>
-		{% for n in data %}
-		<tr>
-		    <td>
-			<input type="number" id="qty" name="{{n.item_id}}" value="0" form="order-form" min="0" max="10"/>
-		    </td>
-		    <td class="menu_section">{{n.menu_section_name}}</td>
-		    <td class="menu_item_name">{{n.menu_item_name}}</td>
-		    <td class="menu_item_description">{{n.menu_item_description}}</td>
-		    <td class="menu_item_price">{{n.menu_item_price}}</td>
+    <form method="POST" id="order-form">
+	<div class="order-form">
+	    <div class="form-group row">
+		<div class="col-sm">
+		    <input type="submit" value="Order" class="btn btn-primary">
+		</div>
+		<div class="col-sm">
+		    <input type="checkbox" class="form-check-input" id="check-pickup" name="pickup" value="pickup" class="btn-check">
+		    <label for="check-pickup" class="form-check-label big-checkbox">Select Pickup</label>
+		</div>
+	    </div>
+	</div>
+    </form>
+    <table class="table table-striped">
+	<thead class="thead-light">
+	    <tr>
+		<th scope="col">Quantity</th>
+		<th scope="col">Section</th>
+		<th scope="col">Item</th>
+		<th scope="col">Description</th>
+		<th scope="col">Price</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    {% for n in data %}
+	    <tr>
+		<th scope="row">
+		    <input type="number" id="qty" name="{{n.item_id}}" value="0" form="order-form" min="0" max="10"/>
+		</th>
+		<td class="menu_section">{{n.menu_section_name}}</td>
+		<td class="menu_item_name">{{n.menu_item_name}}</td>
+		<td class="menu_item_description">{{n.menu_item_description}}</td>
+		<td class="menu_item_price text-right">{{n.menu_item_price}}</td>
 
-		</tr>
-		{% endfor %}
-	    </tbody>
-	</table>
+	    </tr>
+	    {% endfor %}
+	</tbody>
+    </table>
 
-    </body>
-</html>
+</body>
 {% endblock %}
