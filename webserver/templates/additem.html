@@ -1,18 +1,21 @@
-<link rel="stylesheet" href="/static/style.css" type="text/css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/additem.css">
+
 {% extends "layout.html" %}
 {% block body %}
-<html>
-    <head>
-	<meta charset="utf-8"
-    </head>
-    <header>
-	<p><a href="/logout">Logout</a></p>
-	<p><a href="/">Back to Index</a></p>
-	<p><a href="/employee">Employee Console</a></p>
-    </header>
-    <body>
+<body>
+    <div class="container">
+	<header>
+	    <p><a href="/logout">Logout</a></p>
+	    <p><a href="/">Back to Index</a></p>
+	    <p><a href="/employee">Employee Console</a></p>
+	</header>
+	
 	<h1>Employee Console</h1>
 	<h2>Location: {{location_name}}</h2>
+	
 	<form action="/{{location_id}}/additem" method="POST">
 	    <div class="add-item">
 		<div class="add-item-screen">
@@ -22,34 +25,55 @@
 		    <div class="add-item-form">
 			<div class="control-group">
 			    <h3>Select Menu</h3>
-			    <select name="menus">
-				{% for n in menu_info %}
-				<option value="{{n.menu_id}}" SELECTED>{{n.menu_name}}</option>
-				{% endfor %}
-			    </select>
+			    <div class="form-group col">
+				<select class="form-control" name="menus">
+				    {% for n in menu_info %}
+				    <option value="{{n.menu_id}}" SELECTED>{{n.menu_name}}</option>
+				    {% endfor %}
+				</select>
+			    </div>
 			</div>
-			<div class="control-group">
-			    <h3>Item Information</h3>
-			    <input type="text" class="add-item-field" value="" placeholder="item name" name="add-item-name">
-			    <label class="register-field-icon fui-user" for="add-item-name">Required</label></div>
-			<div class="control-group">
-			    <input type="text" class="add-item-field" value="" placeholder="menu section" name="add-item-section">
-			    <label class="register-field-icon fui-user" for="add-item-section"></label></div>
-			<div class="control-group">
-			    <input type="text" class="add-item-field" value="" placeholder="item description" name="add-item-description">
-			    <label class="register-field-icon fui-user" for="add-item-description"></label></div>
-			<div class="control-group">
-			    <input type="text" class="add-item-field" value="" placeholder="attributes" name="add-item-attributes">
-			    <label class="register-field-icon fui-user" for="add-item-field">Vegan, Gluten-Free, etc</label></div>
-			<div class="control-group">
-			    <input type="number" class="add-item-price" value="" name="add-item-price" min="0.00" step="0.01" max="9999.99" placeholder="0.00" style="width: 100px">
-			    <label class="register-field-icon fui-user" for="add-item-field">Price - Required</label></div>
-			<input type="submit" value="Submit" class="btn btn-primary btn-large btn-block">
+			<h3>Item Information</h3>
+			<div class="form-group row">
+			    <div class="form-group col">
+				<label for="add-item-name">Item Name</label>
+				<input type="text" class="form-control" id="add-item-name" value="" placeholder="Item Name" name="add-item-name" required>
+				<small id="item-name-help" class="form-text text-muted">Required</small>
+			    </div>
+			    
+			    <div class="form-group col">
+				<label for="add-item-section">Menu Section</label>
+				<input type="text" class="form-control" id="add-item-section" value="" placeholder="Menu Section" name="add-item-section">
+			    </div>
+			</div>
+
+			<div class="form-group row col">
+			    <label for="add-item-description">Item Description</label>
+			    <input type="text" class="form-control" id="add-item-description" value="" placeholder="Item Description" name="add-item-description">
+			</div>
+
+			<div class="form-group row col">
+			    <label for="add-item-field">Attributes</label>
+			    <input type="text" class="form-control" id="add-item-field" value="" placeholder="Attributes" name="add-item-attributes">
+			    <small id="attributes-help" class="form-text text-muted">Vegan, Gluten-Free, etc</small>
+			</div>
+			
+			<div class="form-group row">
+			    <div class="form-group col"
+				<label class="register-field-icon fui-user" for="add-item-field">Price</label>
+				<input type="number" class="add-item-price" value="" name="add-item-price" min="0.00" step="0.01" max="9999.99" placeholder="0.00" style="width: 100px">
+				<small id="price-help" class="form-text text-muted">Required</small>
+			    </div>
+			</div>
+
+			<div class="form-group row col">
+			    <input type="submit" value="Submit" class="btn btn-primary">
 			</div>
 		    </div>
 		</div>
 	    </div>
+    </div>
 	</form>
-    </body>
-</html>
+    </div>
+</body>
 {% endblock %}
