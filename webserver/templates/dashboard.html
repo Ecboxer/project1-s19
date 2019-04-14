@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="/static/style.css" type="text/css">
+{% extends "layout.html" %}
+{% block body %}
+<html>
+    <header>
+        <p><a href="/logout">Logout</a></p>
+        <p><a href="/{{location_id}}/menu">Back to menus</a></p>
+        <p><a href="/employee">Back to Employee Console</a></p>
+    </header>
+    <body>
+        <h1> Sales Dashboard </h1>
+        <h2> Last week Statistics</h2>
+        <ul style="font-size:25px";>
+            <li >Total Sales: {{ sales[0].total_sales }}</li>
+            <li>Sales Per Order: {{ sales_per_order[0].sales_per_order }}</li>
+        </ul>
+        <h2> Top 3 Hot Sale Items </h2>
+        <ul style="font-size:25px";>
+            {% for item in popular_items %}
+                <li> {{ item.item_name, item.quantity}}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
+{% endblock %}
