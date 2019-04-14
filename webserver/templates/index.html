@@ -1,32 +1,36 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/index.css" type="text/css">
+
 {% extends "layout.html" %}
 {% block body %}
-<link rel="stylesheet" href="/static/style.css" type="text/css">
-<html>
 
+<body class="container">
+    <br>
     <header>
 	<p><a href="/logout">Logout</a></p>
-    <p><a href="/{{user_id}}/orderhistory">My Order History</a></p>
+	<p><a href="/{{user_id}}/orderhistory">My Order History</a></p>
 	{% if employeeof_location_id %}
-	    <p><a href="/employee">Employee Console</a></p>
+	<p><a href="/employee">Employee Console</a></p>
 	{% endif %}
     </header>
     
-    <body>
-	<h1>Restaurants</h1>
+    <h1>Restaurants</h1>
 
-	<table>
-	    <thead>
-		<tr>
-		    <th></th>
-		    <th>Name</th>
-		    <th>Address</th>
-		    <th>City</th>
+    <table class="table table-striped">
+	<thead class="thead-light">
+	    <tr>
+		<th scope="col"></th>
+		<th scope="col">Name</th>
+		<th scope="col">Address</th>
+		<th scope="col">City</th>
 		</tr>
 	    </thead>
 	    <tbody>
 		{% for n in data %}
 		<tr>
-		    <td><a href="/{{n.location_id}}/menu">View Menu</a></td>
+		    <th scope="row"><a href="/{{n.location_id}}/menu">View Menu</a></th>
 		    <td class="location_name">{{n.location_name}}</td>
 		    <td class="location_address">{{n.location_address}}</td>
 		    <td class="location_city">{{n.location_city}}</td>
@@ -36,5 +40,4 @@
 	</table>
 
     </body>
-</html>
 {% endblock %}

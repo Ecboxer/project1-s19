@@ -1,17 +1,20 @@
-<link rel="stylesheet" href="/static/style.css" type="text/css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/employee.css" type="text/css">
+
 {% extends "layout.html" %}
 {% block body %}
-<html>
 
+<body class="container">
+    <br>
     <header>
 	<p><a href="/logout">Logout</a></p>
 	<p><a href="/">Back to Home Page</a></p>
 	<p><a href="/employee">Employee Console</a></p>
     </header>
 
-    <body>
-	<h1>Employee Console</h1>
-
+    <h1>Employee Console</h1>
 	<form action="#" method="POST">
 	    <div class="select-restaurant">
 		<div class="select-restaurant-screen">
@@ -42,7 +45,7 @@
 		    </table>
 		</div>
 	    </div>
-	</form>
-    </body>
-</html>
+	</div>
+    </form>
+</body>
 {% endblock %}

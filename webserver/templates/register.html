@@ -1,4 +1,8 @@
-<link rel="stylesheet" href="/static/style.css" type="text/css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/register.css">
+
 {% extends "layout.html" %}
 {% block body %}
 {% if session['logged_in'] %}
@@ -6,47 +10,68 @@
 You're logged in already!
 
 {% else %}
-
-<header>
-    <a href="/">Back to login</a>
-</header>
-<form action="/register" method="POST">
-    <div class="register">
-	<div class="register-screen">
+<body>
+    <div class="container">
+	<header>
+	    <a href="/">Back to login</a>
+	</header>
+	<form action="/register" method="POST">
 	    <div class="app-title">
 		<h1>Register</h1>
 	    </div>
 	    <div class="register-form">
-		<div class="control-group">
-		    <input type="text" class="register-field" value="" placeholder="full name" name="name">
-		    <label class="register-field-icon fui-user" for="register-name"></label></div>
-		<div class="control-group">
-		    <input type="text" class="register-field" value="" placeholder="username" name="username">
-		    <label class="register-field-icon fui-user" for="register-username">Required</label></div>
-		<div class="control-group">
-		    <input type="password" class="register-field" value="" placeholder="password" name="password">
-		    <label class="register-field-icon fui-lock" for="register-pass">Required</label></div>
-		<div class="control-group">
-		    <input type="password" class="register-field" value="" placeholder="confirm password" name="confirm-password">
-		    <label class="register-field-icon fui-lock" for="register-conf-pass">Must contain at least 8 characters</label></div>
-		<div class="control-group">
-		    <input type="text" class="register-field" value="" placeholder="email" name="email">
-		    <label class="register-field-icon fui-lock" for="register-pass"></label></div>
-		<div class="control-group">
-		    <input type="date" class="register-field" value="" placeholder="" name="dob">
-		    <label class="register-field-icon fui-lock" for="register-dob"></label></div>
-		<div class="control-group">
-		    <input type="checkbox" name="employee" value="employee">Register as an employee</div>
-		    <div class="control-group">
-			<select name="locations">
-			    {% for n in data %}
-			    <option value="{{n.location}}" SELECTED>{{n.location}}</option>
-			    {% endfor %}
-			</select>
+		<div class="form-row">
+		    <div class="form-group col">
+			<label for="register-name">Full Name</label>
+			<input type="text" class="form-control" id="register-name" value="" placeholder="Enter full name" name="name">
 		    </div>
-		    <input type="submit" value="Submit" class="btn btn-primary btn-large btn-block">
+		    <div class="form-group col">
+			<label for="register-username">Username</label>
+			<input type="text" class="form-control" id="register-username" value="" placeholder="Username" name="username" required>
+		    </div>
+		</div>
+		<div class="form-row">
+		    <div class="form-group col">
+			<label for="register-pass">Password</label>
+			<input type="password" class="form-control" value="" placeholder="Password" name="password" required>
+		    </div>
+		    <div class="form-group col">
+			<label for="register-conf-pass">Confirm Password</label>
+			<input type="password" class="form-control" value="" placeholder="Reenter password" name="confirm-password">
+			<small id="password-help" class="form-text text-muted">Must contain at least 8 characters</small>
+		    </div>
+		</div>
+		<div class="form-group col">
+		    <label for="register-email">Email</label>
+		    <input type="email" class="form-control" value="" placeholder="Email" name="email">
+		</div>
+		<div class="form-group col">
+		    <label for="register-dob">Date of Birth</label>
+		    <input type="date" class="form-control" value="" placeholder="" name="dob">
+		</div>
+		<hr class="mb-4">
+		<div class="col">
+		    <div class="form-group form-check col">
+			<input type="checkbox" class="form-check-input" id="employee-check" name="employee" value="employee">
+			<label for="employee-check" class="form-check-label" id="employee-check">Register as an employee</label>
+		    </div>
+		</div>
+		<div class="form-group col">
+		    <select name="locations" class="form-control">
+			{% for n in data %}
+			<option value="{{n.location}}" SELECTED>{{n.location}}</option>
+			{% endfor %}
+		    </select>
+		</div>
+		<div class="form-group row col">
+		    <input type="submit" value="Submit" class="btn btn-primary">
+		</div>
+		<br>
 	    </div>
-	</div>
+	</form>
     </div>
-</form>{% endif %}
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>{% endif %}
 {% endblock %}

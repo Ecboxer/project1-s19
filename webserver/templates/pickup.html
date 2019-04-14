@@ -1,70 +1,79 @@
-<link rel="stylesheet" href="/static/style.css" type="text/css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/pickup.css">
+
 {% extends "layout.html" %}
 {% block body %}
-<html>
-    <head>
-	<meta charset="utf-8"
-    </head>
+
+<body class="container">
+    <br>
     <header>
 	<p><a href="/logout">Logout</a></p>
 	<p><a href="/">Back to Index</a></p>
 	<p><a href="/employee">Employee Console</a></p>
     </header>
-    <body>
-	<h1>Pickup Console</h1>
-	<h2>Location: {{location_name}}</h2>
-	<form action="/{{location_id}}/pickup" id="pickup-form" method="POST">
-	    <input type="submit" value="Update Pickup" class="btn-update btn-primary btn-large btn-block">
-	</form>
-	<h3>Orders awaiting pickup</h3>
-	<table>
-	    <thead>
-		<tr>
-		    <th>Add to picked up</th>
-		    <th>Order ID</th>
-		    <th>Customer ID</th>
-		    <th>Time Placed</th>
-		</tr>
-	    </thead>
-	    <tbody>
-		{% for n in to_pickup %}
-		<tr>
-		    <td>
-			<input type="checkbox" form="pickup-form" name="to_pickup-box" value="{{loop.index0}}-pickup-{{n.order_id}}" style="width: 40px">
-		    </td>
-		    <td>{{n.order_id}}</td>
-		    <td>{{n.customer_id}}</td>
-		    <td>{{n.date_placed}}</td>
-		</tr>
-		{% endfor %}
-	    </tbody>
-	</table>
+    
+    <h1>Pickup Console</h1>
+    <h2>Location: {{location_name}}</h2>
+    
+    <form action="/{{location_id}}/pickup" id="pickup-form" method="POST">
+	<div class="pickup-form">
+	    <div class="row-sm col-sm">
+		<input type="submit" value="Update Pickup" class="btn btn-primary">
+	    </div>
+	</div>
+    </form>
+    
+    <h3>Orders awaiting pickup</h3>
+    
+    <table class="table table-striped">
+	<thead class="thead-light">
+	    <tr>
+		<th scope="col">Add to picked up</th>
+		<th scope="col">Order ID</th>
+		<th scope="col">Cust ID</th>
+		<th scope="col">Placed</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    {% for n in to_pickup %}
+	    <tr>
+		<th scope="row">
+		    <input type="checkbox" class="form-control" form="pickup-form" name="to_pickup-box" value="{{loop.index0}}-pickup-{{n.order_id}}">
+		</tb>
+		<td>{{n.order_id}}</td>
+		<td>{{n.customer_id}}</td>
+		<td>{{n.date_placed}}</td>
+	    </tr>
+	    {% endfor %}
+	</tbody>
+    </table>
 
-	<h3>Orders marked picked up</h3>
-	<table>
-	    <thead>
-		<tr>
-		    <th>Remove from picked up</th>
-		    <th>Order ID</th>
-		    <th>Customer ID</th>
-		    <th>Time Placed</th>
-		    <th>Pickup Time</th>
-		</tr>
-	    </thead>
-	    <tbody>
-		{% for n in were_pickup %}
-		<tr>
-		    <td>
-			<input type="checkbox" form="pickup-form" name="were_pickup-box" value="{{loop.index0}}-pickup-{{n.order_id}}" style="width: 40px">
-		    </td>
-		    <td>{{n.order_id}}</td>
-		    <td>{{n.customer_id}}</td>
-		    <td>{{n.date_placed}}</td>
-		    <td>{{n.pickup_time}}</td>
-		</tr>
-		{% endfor %}
-	    </tbody>
-	</table>
-    </body>
-</html>
+    <h3>Orders marked picked up</h3>
+    <table class="table table-striped">
+	<thead class="thead-light">
+	    <tr>
+		<th scope="col">Remove</th>
+		<th scope="col">Order ID</th>
+		<th scope="col">Cust ID</th>
+		<th scope="col">Placed</th>
+		<th scope="col">Picked Up</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    {% for n in were_pickup %}
+	    <tr>
+		<th scope="row">
+		    <input type="checkbox" class="form-control" form="pickup-form" name="were_pickup-box" value="{{loop.index0}}-pickup-{{n.order_id}}">
+		</th>
+		<td>{{n.order_id}}</td>
+		<td>{{n.customer_id}}</td>
+		<td>{{n.date_placed}}</td>
+		<td>{{n.pickup_time}}</td>
+	    </tr>
+	    {% endfor %}
+	</tbody>
+    </table>
+</body>
 {% endblock %}

@@ -1,60 +1,64 @@
-<link rel="stylesheet" href="/static/style.css" type="text/css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/updateitem.css" type="text/css">
+
 {% extends "layout.html" %}
 {% block body %}
-<html>
-    <head>
-	<meta charset="utf-8">
-    </head>
+<body class="container">
+    <br>
     <header>
 	<p><a href="/logout">Logout</a></p>
 	<p><a href="/">Back to Index</a></p>
 	<p><a href="/employee">Employee Console</a></p>
     </header>
-    <body>
-	<h1>Employee Console</h1>
-	<h2>Location: {{location_name}}</h2>
-	<p>After submitting changes, you can refresh the page to view updated items</p>
-	<form action="/{{location_id}}/updateitem" id="ud-form" method="POST">
-	    <input type="submit" value="Submit Changes" class="btn-update btn-primary btn-large btn-block">
-	</form>
-	<table>
-	    <thead>
-		<tr>
-		    <th>Update</th>
-		    <th>Menu</th>
-		    <th>Menu Section</th>
-		    <th>Item</th>
-		    <th>Description</th>
-		    <th>Attributes</th>
-		    <th>Price</th>
-		</tr>
-	    </thead>
-	    <tbody>
-		{% for n in item_info %}
-		<tr>
-		    <td>
-			<input type="checkbox" form="ud-form" name="update-box" value="{{loop.index0}}-update-{{n.item_id}}" style="width: 40px">
-		    </td>
-		    <td>{{n.menu_name}}</td>
-		    <td>
-			<input type="text" form="ud-form" class="update-menu-section" value="" placeholder="{{n.menu_section_name}}" name="menu-section" style="width: 150px">
-		    </td>
-		    <td>
-			<input type="text" form="ud-form" class="update-item-name" value="" placeholder="{{n.menu_item_name}}" name="menu-item-name">
-		    </td>
-		    <td>
-			<input type="text" form="ud-form" class="update-item-description" value="" placeholder="{{n.menu_item_description}}" name="menu-item-description">
-		    </td>
-		    <td>
-			<input type="text" form="ud-form" class="update-attribute-name" value="" placeholder="{{n.attribute_name}}" name="menu-attribute-name" style="width: 150px">
-		    </td>
-		    <td>
-			<input type="number" form="ud-form" class="update-item-price" value="" placeholder="{{n.menu_item_price}}" name="update-item-price" step="0.01" min="0.00" max="9999.99" style="width: 80px">
-		    </td>
-		</tr>
-		{% endfor %}
-	    </tbody>
-	</table>
-    </body>
-</html>
+
+    <h1>Employee Console</h1>
+    <h2>Location: {{location_name}}</h2>
+    <form action="/{{location_id}}/updateitem" id="ud-form" method="POST">
+	<div class="ud-form">
+	    <div class="col-sm">
+		<input type="submit" value="Submit Changes" class="btn btn-primary">
+	    </div>
+	</div>
+    </form>
+    <table class="table table-striped">
+	<thead class="thead-light">
+	    <tr>
+		<th scope="col">Update</th>
+		<th scope="col">Menu</th>
+		<th scope="col">Menu Section</th>
+		<th scope="col">Item</th>
+		<th scope="col">Description</th>
+		<th scope="col">Attributes</th>
+		<th scope="col">Price</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    {% for n in item_info %}
+	    <tr>
+		<th scope="row">
+		    <input type="checkbox" class="form-control" form="ud-form" name="update-box" value="{{loop.index0}}-update-{{n.item_id}}" style="width: 40px">
+		</th>
+		<td>{{n.menu_name}}</td>
+		<td>
+		    <input type="text" form="ud-form" class="update-menu-section form-control" value="" placeholder="{{n.menu_section_name}}" name="menu-section">
+		</td>
+		<td>
+		    <input type="text" form="ud-form" class="update-item-name form-control" value="" placeholder="{{n.menu_item_name}}" name="menu-item-name">
+		</td>
+		<td>
+		    <input type="text" form="ud-form" class="update-item-description form-control" value="" placeholder="{{n.menu_item_description}}" name="menu-item-description">
+		</td>
+		<td>
+		    <input type="text" form="ud-form" class="update-attribute-name form-control" value="" placeholder="{{n.attribute_name}}" name="menu-attribute-name">
+		</td>
+		<td>
+		    <input type="number" form="ud-form" class="update-item-price form-control" value="" placeholder="{{n.menu_item_price}}" name="update-item-price" step="0.01" min="0.00" max="9999.99" style="width: 80px">
+		</td>
+	    </tr>
+	    {% endfor %}
+	</tbody>
+    </table>
+</body>
 {% endblock %}
