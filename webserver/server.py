@@ -768,7 +768,66 @@ def dashboard(location_id):
   if not session.get('logged_in'):
     return render_template('login.html')
   else:
-    context = dict(location_id=location_id)
+    # Total Sales Last week
+
+    cmd = """
+    WITH order_info AS (
+      SELECT o.order_id, o.order_item_id, o.quantity
+      FROM ordered o
+      WHERE o.location_id= :location_id AND o.order_placed > (CURRENT_DATE - INTEGER '7')
+    )
+    SELECT ROUND(SUM(oi.quantity * i.menu_item_price)) AS total_sales
+    FROM order_info oi, item i
+    WHERE oi.order_item_id = i.item_id
+    """;
+    cursor = g.conn.execute(text(cmd), location_id=location_id);
+    sales = []
+    for result in cursor:
+      sales.append(dict(total_sales=result['total_sales']))
+    cursor.close()
+
+    # Sales Per Order
+    cmd = """
+    WITH order_info AS (
+      SELECT o.order_id, o.order_item_id, o.quantity
+      FROM ordered o
+      WHERE o.location_id= :location_id AND o.order_placed > (CURRENT_DATE - INTEGER '7')
+    )
+    SELECT SUM(oi.quantity * i.menu_item_price) / COUNT(DISTINCT(oi.order_id)) AS sales_per_order
+    FROM order_info oi, item i
+    WHERE oi.order_item_id = i.item_id
+    """;
+    cursor = g.conn.execute(text(cmd), location_id=location_id);
+    sales_per_order = []
+    for result in cursor:
+      sales_per_order.append(dict(sales_per_order=result['sales_per_order']))
+    cursor.close()
+
+    # Popular items top 3
+    cmd = """
+    WITH order_info AS (
+      SELECT o.order_id, o.order_item_id, o.quantity
+      FROM ordered o
+      WHERE o.location_id= :location_id AND o.order_placed > (CURRENT_DATE - INTEGER '7')
+    ), tmp AS (
+      SELECT oi.order_item_id as item_id, SUM(oi.quantity) as quantity
+      FROM order_info oi
+      GROUP BY oi.order_item_id
+      ORDER BY quantity DESC
+      LIMIT 3
+    )
+    SELECT i.menu_item_name, tmp.quantity
+    FROM tmp, item i
+    WHERE tmp.item_id = i.item_id
+    """;
+
+    cursor = g.conn.execute(text(cmd), location_id=location_id);
+    popular_items = []
+    for result in cursor:
+      popular_items.append(dict(item_name=result['menu_item_name'], quantity=result['quantity']))
+    cursor.close()
+    context = dict(location_id=location_id, sales=sales, sales_per_order=sales_per_order,
+                   popular_items=popular_items)
     return render_template('dashboard.html', **context)
 
 
