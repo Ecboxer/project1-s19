@@ -467,8 +467,13 @@ def updatedeleteitem(location_id):
           cmd = 'UPDATE item SET menu_item_price = :item_price WHERE item_id = :item_id';
           g.conn.execute(text(cmd), item_price=item_prices[item_idx], item_id=item_id);
           updated_item['menu_item_price'] = item_prices[item_idx]
+
+        item_info[i] = updated_item
         n_updated += 1
-      
+
+        
+      context = dict(location_id=location_id, location_name=location_name, item_info=item_info)
+        
       flash('Number Updated: ' + str(n_updated))
       return render_template('updateitem.html', **context)
 
@@ -687,9 +692,10 @@ def pickup(location_id):
     cursor = g.conn.execute(text(cmd), location_id = location_id);
     to_pickup = []
     for result in cursor:
+      placed_dt = '{0:%Y-%m-%d %H:%M:%S}'.format(result['date_placed'])
       to_pickup.append(dict(pickup=result['pickup'], order_id=result['order_id'],
                             order_item_id=result['order_item_id'], customer_id=result['customer_id'],
-                            date_placed=result['date_placed']))
+                            date_placed=placed_dt))
     cursor.close()
     
     # Get orders that have been picked up TODO test
@@ -704,9 +710,10 @@ def pickup(location_id):
     cursor = g.conn.execute(text(cmd), location_id = location_id);
     were_pickup = []
     for result in cursor:
+      pickup_dt = '{0:%Y-%m-%d %H:%M:%S}'.format(result['pickup_time'])
       were_pickup.append(dict(pickup=result['pickup'], order_id=result['order_id'],
                               order_item_id=result['order_item_id'], customer_id=result['customer_id'],
-                              date_placed=result['date_placed'], pickup_time=result['pickup_time']))
+                              date_placed=result['date_placed'], pickup_time=pickup_dt))
     
     context = dict(location_id=location_id, location_name=location_name, to_pickup=to_pickup,
                    were_pickup=were_pickup)
