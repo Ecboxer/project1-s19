@@ -1,34 +1,37 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/menu.css" type="text/css">
+
 {% extends "layout.html" %}
 {% block body %}
-<link rel="stylesheet" href="/static/style.css" type="text/css">
-<html>
 
+<body class="container">
+    <br>
     <header>
 	<p><a href="/logout">Logout</a></p>
 	<p><a href="/">Back to restaurants</a></p>
     </header>
 
-    <body>
-	<h1>{{location_name}}</h1>
-	<h2>Menus</h2>
+    <h1>{{location_name}}</h1>
+    <h2>Menus</h2>
 
-	<table>
-	    <thead>
-		<tr>
-		    <th></th>
-		    <th>Menu Name</th>
-		</tr>
-	    </thead>
-	    <tbody>
-		{% for n in data %}
-		<tr>
-		    <td><a href="/{{n.menu_id}}/items">View Items</a></td>
-		    <td class="menu_name">{{n.menu_name}}</td>
-		</tr>
-		{% endfor %}
-	    </tbody>
-	</table>
+    <table class="table table-striped">
+	<thead class="thead-light">
+	    <tr>
+		<th scope="col"></th>
+		<th scope="col">Menu Name</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    {% for n in data %}
+	    <tr>
+		<th scope="row"><a href="/{{n.menu_id}}/items">View Items</a></th>
+		<td class="menu_name">{{n.menu_name}}</td>
+	    </tr>
+	    {% endfor %}
+	</tbody>
+    </table>
 
-    </body>
-</html>
+</body>
 {% endblock %}
