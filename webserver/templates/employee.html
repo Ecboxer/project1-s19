@@ -21,24 +21,24 @@
 		    <h1>Select Restaurant</h1>
 		</div>
 		<div class="select-restaurant-form">
-		    <table>
-			<thead>
+		    <table class="table table-striped">
+			<thead class="thead-light">
 			    <tr>
-				<th>Add Item</th>
-				<th>Update Item</th>
-				<th>Pickup Console</th>
-				<th>Restaurant</th>
-                <th>Sales Dashboard</th>
+				<th scope="col">Add Item</th>
+				<th scope="col">Update Item</th>
+				<th scope="col">Pickup Console</th>
+				<th scope="col">Restaurant</th>
+                <th scope="col">Sales Dashboard</th>
 			    </tr>
 			</thead>
 			<tbody>
 			    {% for n in location_info %}
 			    <tr>
-				<td><a href="/{{n.split()[0]}}/additem">Add</a></td>
-				<td><a href="/{{n.split()[0]}}/updateitem">Update</a></td>
-				<td><a href="/{{n.split()[0]}}/pickup">Manage Pickups</a></td>
-				<td class="location_name">{{n}}</td>
-                <td><a href="/{{n.split()[0]}}/dashboard"> View </a></td>
+                    <td><a href="/{{n.split()[0]}}/additem">Add</a></td>
+                    <td><a href="/{{n.split()[0]}}/updateitem">Update</a></td>
+                    <td><a href="/{{n.split()[0]}}/pickup">Manage Pickups</a></td>
+                    <td class="location_name">{{n}}</td>
+                    <td><a href="/{{n.split()[0]}}/dashboard"> View </a></td>
 			    </tr>
 			    {% endfor %}
 			</tbody>
