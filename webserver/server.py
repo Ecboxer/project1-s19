@@ -790,7 +790,7 @@ def dashboard(location_id):
     cursor = g.conn.execute(text(cmd), location_id=location_id);
     sales = []
     for result in cursor:
-      sales.append(dict(total_sales=result['total_sales']))
+      sales.append(dict(total_sales=round(result['total_sales'], 2)))
     cursor.close()
 
     # Sales Per Order
@@ -807,7 +807,7 @@ def dashboard(location_id):
     cursor = g.conn.execute(text(cmd), location_id=location_id);
     sales_per_order = []
     for result in cursor:
-      sales_per_order.append(dict(sales_per_order=result['sales_per_order']))
+      sales_per_order.append(dict(sales_per_order=round(result['sales_per_order'], 2)))
     cursor.close()
 
     # Popular items top 3
@@ -831,7 +831,11 @@ def dashboard(location_id):
     cursor = g.conn.execute(text(cmd), location_id=location_id);
     popular_items = []
     for result in cursor:
-      popular_items.append(dict(item_name=result['menu_item_name'], quantity=result['quantity']))
+      item_name = result['menu_item_name']
+      quantity = result['quantity']
+      output = '{}: {}'.format(item_name, quantity)
+      popular_items.append(dict(item_name_quantity=output))
+      print(result)
     cursor.close()
     context = dict(location_id=location_id, sales=sales, sales_per_order=sales_per_order,
                    popular_items=popular_items)
