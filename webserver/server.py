@@ -628,12 +628,13 @@ def orderhistory(user_id):
 
     orders = []
     for result in cursor:
+      order_dt = '{0:%Y-%m-%d %H:%M:%S}'.format(result['order_placed'])
       orders.append(dict(order_id=result['order_id'],
                          order_item_id=result['order_item_id'],
                          menu_item_name=result['menu_item_name'],
                          quantity=result['quantity'],
                          location_name=result['location_name'],
-                         order_placed=result['order_placed'],
+                         order_placed=order_dt,
                          rating=result['rating']))
     cursor.close()
 
