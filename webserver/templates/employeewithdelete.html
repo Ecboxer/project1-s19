@@ -1,0 +1,44 @@
+<link rel="stylesheet" href="/static/style.css" type="text/css">
+{% extends "layout.html" %}
+{% block body %}
+<html>
+
+    <header>
+	<p><a href="/logout">Logout</a></p>
+	<p><a href="/">Back to Index</a></p>
+	<p><a href="/employee">Employee Console</a></p>
+    </header>
+
+    <body>
+	<h1>Employee Console</h1>
+
+	<form action="#" method="POST">
+	    <div class="select-restaurant">
+		<div class="select-restaurant-screen">
+		    <h1>Select Restaurant</h1>
+		</div>
+		<div class="select-restaurant-form">
+		    <table>
+			<thead>
+			    <tr>
+				<th>Add Item</th>
+				<th>Update or Delete Item</th>
+				<th>Restaurant</th>
+			    </tr>
+			</thead>
+			<tbody>
+			    {% for n in location_info %}
+			    <tr>
+				<td><a href="/{{n.split()[0]}}/additem">Add</a></td>
+				<td><a href="/{{n.split()[0]}}/updatedeleteitem">Update or Delete</a></td>
+				<td class="location_name">{{n}}</td>
+			    </tr>
+			    {% endfor %}
+			</tbody>
+		    </table>
+		</div>
+	    </div>
+	</form>
+    </body>
+</html>
+{% endblock %}

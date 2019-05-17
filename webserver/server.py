@@ -563,7 +563,8 @@ def register():
     for result in cursor:
       user_id = result['user_id']
     cursor.close()
-    
+
+    ## TODO Check for dob email before insert
     # Insert new customer
     cmd = """INSERT INTO customer VALUES (:user_id, :dob, :email)""";
     g.conn.execute(text(cmd), user_id=user_id, dob=dob, email=email);

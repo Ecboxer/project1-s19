@@ -1,0 +1,51 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/employee.css" type="text/css">
+
+{% extends "layout.html" %}
+{% block body %}
+
+<body class="container">
+    <br>
+    <header>
+	<p><a href="/logout">Logout</a></p>
+	<p><a href="/">Back to Home Page</a></p>
+	<p><a href="/employee">Employee Console</a></p>
+    </header>
+
+    <h1>Employee Console</h1>
+	<form action="#" method="POST">
+	    <div class="select-restaurant">
+		<div class="select-restaurant-screen">
+		    <h1>Select Restaurant</h1>
+		</div>
+		<div class="select-restaurant-form">
+		    <table class="table table-striped">
+			<thead class="thead-light">
+			    <tr>
+				<th scope="col">Add Item</th>
+				<th scope="col">Update Item</th>
+				<th scope="col">Pickup Console</th>
+				<th scope="col">Sales Dashboard</th>
+				<th scope="col">Restaurant</th>
+			    </tr>
+			</thead>
+			<tbody>
+			    {% for n in location_info %}
+			    <tr>
+				<td><a href="/{{n.split()[0]}}/additem">Add</a></td>
+				<td><a href="/{{n.split()[0]}}/updateitem">Update</a></td>
+				<td><a href="/{{n.split()[0]}}/pickup">Manage Pickups</a></td>
+				<td><a href="/{{n.split()[0]}}/dashboard">View Sales</a></td>
+				<td class="location_name">{{n}}</td>
+			    </tr>
+			    {% endfor %}
+			</tbody>
+		    </table>
+		</div>
+	    </div>
+	</div>
+    </form>
+</body>
+{% endblock %}
